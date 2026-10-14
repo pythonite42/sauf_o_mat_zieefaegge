@@ -53,28 +53,30 @@ class PageAdvertising extends StatelessWidget {
               ),
               Positioned(
                 left: MySize(context).w * 0.18,
-                top: MySize(context).h * 0.08,
+                top: MySize(context).h * 0.06,
                 child: Tilt(
                   disable: true,
                   tiltConfig: TiltConfig(initial: Offset(-0.4, -0.4)),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         GlobalSettings.newspaperTitle,
-                        style: NewspaperTextTheme.title,
+                        style: NewspaperTextTheme.title.copyWith(fontSize: 100),
                       ),
                       Container(
                         padding: EdgeInsets.only(
                           bottom: MySize(context).h * 0.02,
                         ),
-                        width: MySize(context).w * 0.55,
+                        width: MySize(context).w * 0.6,
                         child: Divider(thickness: 4),
                       ),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
-                            width: MySize(context).w * 0.3,
+                            width: MySize(context).w * 0.25,
                             height: MySize(context).h * 0.6,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(20),
@@ -98,13 +100,13 @@ class PageAdvertising extends StatelessWidget {
                             width: MySize(context).w * 0.02,
                           ), // spacing between image and content
                           SizedBox(
-                            width: MySize(context).w * 0.27,
+                            width: MySize(context).w * 0.34,
                             child: Builder(
                               builder: (context) {
                                 final TextStyle headlineStyle =
                                     NewspaperTextTheme.headline.copyWith(
                                       height: 1,
-                                      fontSize: 45,
+                                      fontSize: 55,
                                     );
                                 int headlineLines = 1;
                                 try {
@@ -144,7 +146,7 @@ class PageAdvertising extends StatelessWidget {
                                       textAlign: TextAlign.left,
                                       style: NewspaperTextTheme.body.copyWith(
                                         height: 1,
-                                        fontSize: 32,
+                                        fontSize: 43,
                                       ),
                                       maxLines: bodyMaxLines,
                                       overflow: TextOverflow.ellipsis,
