@@ -19,17 +19,22 @@ class CustomDurationsProduction {
   //general
   final int indexNavigationChange = 120;
   final int navigationTransition = 1200;
-  final int changeToPrizePageBeforePrizeTime = 5 * 60; //seconds before prize time the display changes to prize page
-  final int stayOnPrizePageAfterPrizeTime = 60; //seconds after prize time the display changes back to normal navigation
+  final int changeToPrizePageBeforePrizeTime =
+      5 * 60; //seconds before prize time the display changes to prize page
+  final int stayOnPrizePageAfterPrizeTime =
+      60; //seconds after prize time the display changes back to normal navigation
 
   //page diagram
   final int reloadDataDiagram = 7;
-  final int chartAutoScroll = 8; //every x seconds the chart scrolls one bar down
+  final int chartAutoScroll =
+      8; //every x seconds the chart scrolls one bar down
   final int speedChartScroll = 500;
   final int showPopup = 25;
-  final int popUpCooldown = 20; //after a popup was shown, wait x seconds until another popup can be shown
+  final int popUpCooldown =
+      20; //after a popup was shown, wait x seconds until another popup can be shown
   final int popUpMillisecondsBetweenShotsMinimum = 200;
-  final int popUpMillisecondsBetweenShotsMaximum = 800; //real maximum is minimum + maximum (e.g. 200 + 800 = 1000)
+  final int popUpMillisecondsBetweenShotsMaximum =
+      800; //real maximum is minimum + maximum (e.g. 200 + 800 = 1000)
   final int popUpShotAnimation = 100;
 
   //page top3
@@ -47,8 +52,10 @@ class CustomDurationsProduction {
 
   // ##### salesforce ######################
 
-  final int catchUpValidUntil = 60; //how long is a catchUp eligible for visualisation
-  final int diagramStatusAufgestiegenAbgestiegen = 20; //seconds a group is marked as "aufgestiegen" or "abgestiegen"
+  final int catchUpValidUntil =
+      60; //how long is a catchUp eligible for visualisation
+  final int diagramStatusAufgestiegenAbgestiegen =
+      20; //seconds a group is marked as "aufgestiegen" or "abgestiegen"
 }
 
 class CustomDurationsTest {
@@ -57,17 +64,22 @@ class CustomDurationsTest {
   //general
   final int indexNavigationChange = 10;
   final int navigationTransition = 800;
-  final int changeToPrizePageBeforePrizeTime = 5 * 60; //seconds before prize time the display changes to prize page
-  final int stayOnPrizePageAfterPrizeTime = 60; //seconds after prize time the display changes back to normal navigation
+  final int changeToPrizePageBeforePrizeTime =
+      5 * 60; //seconds before prize time the display changes to prize page
+  final int stayOnPrizePageAfterPrizeTime =
+      60; //seconds after prize time the display changes back to normal navigation
 
   //page diagram
   final int reloadDataDiagram = 7;
-  final int chartAutoScroll = 8; //every x seconds the chart scrolls one bar down
+  final int chartAutoScroll =
+      8; //every x seconds the chart scrolls one bar down
   final int speedChartScroll = 500;
   final int showPopup = 10;
-  final int popUpCooldown = 20; //after a popup was shown, wait x seconds until another popup can be shown
+  final int popUpCooldown =
+      20; //after a popup was shown, wait x seconds until another popup can be shown
   final int popUpMillisecondsBetweenShotsMinimum = 200;
-  final int popUpMillisecondsBetweenShotsMaximum = 400; //real maximum is minimum + maximum (e.g. 200 + 400 = 600)
+  final int popUpMillisecondsBetweenShotsMaximum =
+      400; //real maximum is minimum + maximum (e.g. 200 + 400 = 600)
   final int popUpShotAnimation = 100;
 
   //page top3
@@ -85,13 +97,15 @@ class CustomDurationsTest {
 
   // ##### salesforce ######################
 
-  final int catchUpValidUntil = 60; //how long is a catchUp eligible for visualisation
-  final int diagramStatusAufgestiegenAbgestiegen = 20; //seconds a group is marked as "aufgestiegen" or "abgestiegen"
+  final int catchUpValidUntil =
+      60; //how long is a catchUp eligible for visualisation
+  final int diagramStatusAufgestiegenAbgestiegen =
+      20; //seconds a group is marked as "aufgestiegen" or "abgestiegen"
 }
 
 class GlobalSettings {
   static const double fullscreenIconSize = 20;
-  static DateTime lastPerformance = DateTime(2025, 11, 29, 23, 45);
+  static DateTime lastPerformance = DateTime(2026, 11, 28, 23, 45);
 
   // page diagram
   static const int totalBarsVisible = 5;
@@ -107,13 +121,14 @@ class GlobalSettings {
     "Cowboyhut und eine Säule",
   ];
   static List<DateTime> prizeTimes = [
-    DateTime(2025, 11, 29, 22, 45),
-    DateTime(2025, 11, 29, 23, 30),
-    DateTime(2025, 11, 30, 00, 45),
+    DateTime(2026, 11, 28, 22, 45),
+    DateTime(2026, 11, 28, 23, 30),
+    DateTime(2026, 11, 29, 00, 45),
   ];
 
   static const newspaperTitle = "The Guggeball Times"; //"Zieefägge Allgemeine"
 
   // ##### salesforce ######################
-  static const int catchUpShownAtPointsDelta = 10; //minimum points difference to show a catchUp
+  static const int catchUpShownAtPointsDelta =
+      10; //minimum points difference to show a catchUp
 }
