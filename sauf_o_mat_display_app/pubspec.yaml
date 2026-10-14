@@ -6,31 +6,31 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 0.0.1+1
 
 environment:
-  sdk: ^3.5.3
+  sdk: 3.13.5
 
 dependencies:
   flutter:
     sdk: flutter
 
-  english_words: ^4.0.0
-  provider: ^6.1.5
-  window_manager: ^0.4.3
-  syncfusion_flutter_charts: ^29.2.5
-  flutter_svg: ^2.2.0
-  http: ^1.4.0
-  jose: ^0.3.4
-  flutter_dotenv: ^5.2.1
-  flutter_webrtc: ^0.14.2
-  web_socket_channel: ^3.0.3
-  google_fonts: ^6.3.0
-  intl: ^0.20.2
-  flutter_tilt: ^3.3.2
+  english_words: 4.0.0
+  provider: ^6.1.5+1
+  window_manager: ^0.5.2
+  syncfusion_flutter_charts: ^35.1.39
+  flutter_svg: ^2.3.0
+  http: ^1.6.0
+  jose: ^0.3.5+2
+  flutter_dotenv: ^6.0.1
+  flutter_webrtc: ^1.6.2+hotfix.4
+  web_socket_channel: 3.0.3
+  google_fonts: ^9.0.0
+  intl: ^0.20.3
+  flutter_tilt: ^4.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

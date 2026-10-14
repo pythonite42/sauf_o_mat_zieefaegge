@@ -111,8 +111,12 @@ class _MyScaffoldState extends State<MyScaffold> {
   }
 
   void _navigateToPage(int index) {
-    if (index == 2 && DateTime.now().isAfter(GlobalSettings.prizeTimes.last)) return;
-    if (index == 3 && DateTime.now().isAfter(GlobalSettings.lastPerformance)) return;
+    if (index == 2 && DateTime.now().isAfter(GlobalSettings.prizeTimes.last)) {
+      return;
+    }
+    if (index == 3 && DateTime.now().isAfter(GlobalSettings.lastPerformance)) {
+      return;
+    }
 
     setState(() {
       pageIndex = index;
@@ -125,21 +129,26 @@ class _MyScaffoldState extends State<MyScaffold> {
 
   void _startPageIndexTimer() {
     _pageIndexReloadTimer?.cancel();
-    _pageIndexReloadTimer = Timer.periodic(Duration(seconds: customDurations.indexNavigationChange), (_) {
-      if (!overridePageIndex) {
-        int nextIndex = (pageIndex + 1) % 6;
-        if (nextIndex == 2 && DateTime.now().isAfter(GlobalSettings.prizeTimes.last)) {
-          nextIndex++;
+    _pageIndexReloadTimer = Timer.periodic(
+      Duration(seconds: customDurations.indexNavigationChange),
+      (_) {
+        if (!overridePageIndex) {
+          int nextIndex = (pageIndex + 1) % 6;
+          if (nextIndex == 2 &&
+              DateTime.now().isAfter(GlobalSettings.prizeTimes.last)) {
+            nextIndex++;
+          }
+          if (nextIndex == 3 &&
+              DateTime.now().isAfter(GlobalSettings.lastPerformance)) {
+            nextIndex++;
+          }
+          animateNavigation = true;
+          _navigateToPage(nextIndex);
+        } else {
+          overridePageIndex = false;
         }
-        if (nextIndex == 3 && DateTime.now().isAfter(GlobalSettings.lastPerformance)) {
-          nextIndex++;
-        }
-        animateNavigation = true;
-        _navigateToPage(nextIndex);
-      } else {
-        overridePageIndex = false;
-      }
-    });
+      },
+    );
   }
 
   void _schedulePrizeGuard() {
@@ -151,8 +160,12 @@ class _MyScaffoldState extends State<MyScaffold> {
     }
 
     final prizeTime = GlobalSettings.prizeTimes[_nextPrizeIndex];
-    final preStart = prizeTime.subtract(Duration(seconds: customDurations.changeToPrizePageBeforePrizeTime));
-    final preEnd = prizeTime.add(Duration(seconds: customDurations.stayOnPrizePageAfterPrizeTime));
+    final preStart = prizeTime.subtract(
+      Duration(seconds: customDurations.changeToPrizePageBeforePrizeTime),
+    );
+    final preEnd = prizeTime.add(
+      Duration(seconds: customDurations.stayOnPrizePageAfterPrizeTime),
+    );
     final now = DateTime.now();
 
     if (now.isBefore(preStart)) {
@@ -175,9 +188,13 @@ class _MyScaffoldState extends State<MyScaffold> {
 
     _unfreezeTimer?.cancel();
     _unfreezeTimer = Timer(
-        Duration(
-            seconds: customDurations.changeToPrizePageBeforePrizeTime + customDurations.stayOnPrizePageAfterPrizeTime),
-        _exitPrizeFreeze);
+      Duration(
+        seconds:
+            customDurations.changeToPrizePageBeforePrizeTime +
+            customDurations.stayOnPrizePageAfterPrizeTime,
+      ),
+      _exitPrizeFreeze,
+    );
   }
 
   void _exitPrizeFreeze() {
@@ -209,69 +226,79 @@ class _MyScaffoldState extends State<MyScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(children: [
-        Positioned.fill(
-          child: Container(
-            color: billboardBackgroundColor,
-            child: Navigator(
-              key: _navigatorKey,
-              initialRoute: '/page0',
-              onGenerateRoute: (settings) {
-                switch (settings.name) {
-                  case '/page0':
-                    return _createRoute(PageDiagram());
-                  case '/page1':
-                    return _createRoute(PageTop3());
-                  case '/page2':
-                    return _createRoute(PagePrize());
-                  case '/page3':
-                    return _createRoute(PageSchedule());
-                  case '/page4':
-                    return _createRoute(PageQuote());
-                  case '/page5':
-                    return _createRoute(PageAdvertising());
-                  case '/page6':
-                    return _createRoute(PageLivestream(isKiss: false));
-                  case '/page7':
-                    return _createRoute(PageLivestream(isKiss: true));
-                  default:
-                    return MaterialPageRoute(builder: (_) => const Center(child: Text('Unknown Page')));
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Container(
+              color: billboardBackgroundColor,
+              child: Navigator(
+                key: _navigatorKey,
+                initialRoute: '/page0',
+                onGenerateRoute: (settings) {
+                  switch (settings.name) {
+                    case '/page0':
+                      return _createRoute(PageDiagram());
+                    case '/page1':
+                      return _createRoute(PageTop3());
+                    case '/page2':
+                      return _createRoute(PagePrize());
+                    case '/page3':
+                      return _createRoute(PageSchedule());
+                    case '/page4':
+                      return _createRoute(PageQuote());
+                    case '/page5':
+                      return _createRoute(PageAdvertising());
+                    case '/page6':
+                      return _createRoute(PageLivestream(isKiss: false));
+                    case '/page7':
+                      return _createRoute(PageLivestream(isKiss: true));
+                    default:
+                      return MaterialPageRoute(
+                        builder: (_) =>
+                            const Center(child: Text('Unknown Page')),
+                      );
+                  }
+                },
+              ),
+            ),
+          ),
+          Positioned(
+            top: 5,
+            right: 5,
+            child: IconButton(
+              onPressed: () async {
+                if (titleBarVisible) {
+                  windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+                  setState(() => titleBarVisible = false);
+                  await windowManager.setFullScreen(true);
+                } else {
+                  windowManager.setTitleBarStyle(TitleBarStyle.normal);
+                  setState(() => titleBarVisible = true);
+                  await windowManager.setFullScreen(false);
                 }
               },
+              icon: Icon(
+                titleBarVisible ? Icons.open_in_full : Icons.close_fullscreen,
+                color: titleBarVisible
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.secondary,
+                size: GlobalSettings.fullscreenIconSize,
+              ),
             ),
           ),
-        ),
-        Positioned(
-          top: 5,
-          right: 5,
-          child: IconButton(
-            onPressed: () async {
-              if (titleBarVisible) {
-                windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-                setState(() => titleBarVisible = false);
-                await windowManager.setFullScreen(true);
-              } else {
-                windowManager.setTitleBarStyle(TitleBarStyle.normal);
-                setState(() => titleBarVisible = true);
-                await windowManager.setFullScreen(false);
-              }
-            },
-            icon: Icon(
-              titleBarVisible ? Icons.open_in_full : Icons.close_fullscreen,
-              color: titleBarVisible ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary,
-              size: GlobalSettings.fullscreenIconSize,
-            ),
-          ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 
   Route _createRoute(Widget page) {
     if (animateNavigation) {
       return PageRouteBuilder(
-        transitionDuration: Duration(milliseconds: customDurations.navigationTransition),
-        pageBuilder: (_, animation, secondaryAnimation) => backgroundContainer(child: page),
+        transitionDuration: Duration(
+          milliseconds: customDurations.navigationTransition,
+        ),
+        pageBuilder: (_, animation, secondaryAnimation) =>
+            backgroundContainer(child: page),
         transitionsBuilder: (_, animation, secondaryAnimation, child) {
           const curve = Curves.ease;
 
@@ -299,7 +326,7 @@ class _MyScaffoldState extends State<MyScaffold> {
     }
 
     return PageRouteBuilder(
-      pageBuilder: (_, __, ___) => backgroundContainer(child: page),
+      pageBuilder: (_, _, _) => backgroundContainer(child: page),
     );
   }
 

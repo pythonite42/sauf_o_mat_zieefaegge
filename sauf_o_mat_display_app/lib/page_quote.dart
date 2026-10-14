@@ -31,7 +31,10 @@ class PageQuote extends StatelessWidget {
               child: CircularProgressIndicator(color: defaultOnPrimary),
             );
           } else {
-            SalesforceService().setPageQuoteQueryUsed(snapshot.data!["recordId"], DateTime.now());
+            SalesforceService().setPageQuoteQueryUsed(
+              snapshot.data!["recordId"],
+              DateTime.now(),
+            );
             final username = snapshot.data!["name"] ?? "";
             final handle = snapshot.data!["handle"] ?? "";
             final quotes = snapshot.data!["quotes"] ?? [] as List<String>;
@@ -40,7 +43,9 @@ class PageQuote extends StatelessWidget {
               aspectRatio: 16 / 9,
               child: Card(
                 color: Color(0xFFF8F9FF),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 elevation: 4,
                 child: Padding(
                   padding: EdgeInsets.all(MySize(context).h * 0.08),
@@ -52,7 +57,7 @@ class PageQuote extends StatelessWidget {
                           child: Image.network(
                             imageUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, _, __) => Image.asset(
+                            errorBuilder: (context, _, _) => Image.asset(
                               'assets/placeholder_single.png',
                               fit: BoxFit.cover,
                             ),
@@ -114,10 +119,7 @@ class PageQuote extends StatelessWidget {
                             ), */
 
                             // Carousel Transition:
-
-                            Expanded(
-                              child: QuoteCarousel(quotes: quotes),
-                            ),
+                            Expanded(child: QuoteCarousel(quotes: quotes)),
 
                             /* // Fade Transition:
                             FadingQuoteCarousel(
@@ -141,10 +143,7 @@ class PageQuote extends StatelessWidget {
 class QuoteCarousel extends StatefulWidget {
   final List<String> quotes;
 
-  const QuoteCarousel({
-    super.key,
-    required this.quotes,
-  });
+  const QuoteCarousel({super.key, required this.quotes});
 
   @override
   State<QuoteCarousel> createState() => _QuoteCarouselState();
@@ -160,7 +159,9 @@ class _QuoteCarouselState extends State<QuoteCarousel> {
     super.initState();
     _controller = PageController();
 
-    _timer = Timer.periodic(Duration(seconds: customDurations.switchQuote), (timer) {
+    _timer = Timer.periodic(Duration(seconds: customDurations.switchQuote), (
+      timer,
+    ) {
       _currentPage = (_currentPage + 1) % widget.quotes.length;
       _controller.animateToPage(
         _currentPage,
@@ -187,10 +188,7 @@ class _QuoteCarouselState extends State<QuoteCarousel> {
         return Text(
           widget.quotes[index],
           textAlign: TextAlign.start,
-          style: const TextStyle(
-            fontSize: 35,
-            color: Colors.black87,
-          ),
+          style: const TextStyle(fontSize: 35, color: Colors.black87),
           maxLines: 4,
         );
       },
@@ -201,10 +199,7 @@ class _QuoteCarouselState extends State<QuoteCarousel> {
 class FadingQuoteCarousel extends StatefulWidget {
   final List<String> quotes;
 
-  const FadingQuoteCarousel({
-    super.key,
-    required this.quotes,
-  });
+  const FadingQuoteCarousel({super.key, required this.quotes});
 
   @override
   State<FadingQuoteCarousel> createState() => _FadingQuoteCarouselState();
@@ -217,7 +212,9 @@ class _FadingQuoteCarouselState extends State<FadingQuoteCarousel> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(Duration(seconds: customDurations.switchQuote), (_) {
+    _timer = Timer.periodic(Duration(seconds: customDurations.switchQuote), (
+      _,
+    ) {
       setState(() {
         _currentIndex = (_currentIndex + 1) % widget.quotes.length;
       });
@@ -241,10 +238,7 @@ class _FadingQuoteCarouselState extends State<FadingQuoteCarousel> {
         widget.quotes[_currentIndex],
         key: ValueKey(widget.quotes[_currentIndex]),
         textAlign: TextAlign.start,
-        style: const TextStyle(
-          fontSize: 35,
-          color: Colors.black87,
-        ),
+        style: const TextStyle(fontSize: 35, color: Colors.black87),
         maxLines: 4,
       ),
     );
