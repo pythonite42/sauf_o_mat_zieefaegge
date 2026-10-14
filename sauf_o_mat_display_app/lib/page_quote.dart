@@ -51,15 +51,18 @@ class PageQuote extends StatelessWidget {
                   padding: EdgeInsets.all(MySize(context).h * 0.08),
                   child: Row(
                     children: [
-                      AspectRatio(
-                        aspectRatio: 1,
-                        child: ClipOval(
-                          child: Image.network(
-                            imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, _, _) => Image.asset(
-                              'assets/placeholder_single.png',
+                      SizedBox(
+                        width: MySize(context).w * 0.35,
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: ClipOval(
+                            child: Image.network(
+                              imageUrl,
                               fit: BoxFit.cover,
+                              errorBuilder: (context, _, _) => Image.asset(
+                                'assets/placeholder_single.png',
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),
@@ -69,12 +72,12 @@ class PageQuote extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(height: MySize(context).h * 0.1),
+                            SizedBox(height: MySize(context).h * 0),
                             Text(
                               username,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 60,
+                                fontSize: 70,
                                 color: Colors.black87,
                                 height: 1,
                               ),
@@ -83,7 +86,7 @@ class PageQuote extends StatelessWidget {
                             Text(
                               "@$handle",
                               style: const TextStyle(
-                                fontSize: 30,
+                                fontSize: 40,
                                 color: Colors.black87,
                               ),
                               maxLines: 1,
@@ -188,8 +191,12 @@ class _QuoteCarouselState extends State<QuoteCarousel> {
         return Text(
           widget.quotes[index],
           textAlign: TextAlign.start,
-          style: const TextStyle(fontSize: 35, color: Colors.black87),
-          maxLines: 4,
+          style: const TextStyle(
+            fontSize: 45,
+            color: Colors.black87,
+            height: 1.1,
+          ),
+          maxLines: 6,
         );
       },
     );
