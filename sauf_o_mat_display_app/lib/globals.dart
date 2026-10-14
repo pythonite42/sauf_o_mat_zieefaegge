@@ -17,11 +17,12 @@ class CustomDurationsProduction {
   // ##### frontend ######################
 
   //general
-  final int indexNavigationChange = 120;
+  final int indexNavigationChange = 180;
   final int navigationTransition = 1200;
   final int changeToPrizePageBeforePrizeTime =
       5 * 60; //seconds before prize time the display changes to prize page
   final int stayOnPrizePageAfterPrizeTime =
+      5 *
       60; //seconds after prize time the display changes back to normal navigation
 
   //page diagram
@@ -29,9 +30,9 @@ class CustomDurationsProduction {
   final int chartAutoScroll =
       8; //every x seconds the chart scrolls one bar down
   final int speedChartScroll = 500;
-  final int showPopup = 25;
+  final int showPopup = 60;
   final int popUpCooldown =
-      20; //after a popup was shown, wait x seconds until another popup can be shown
+      30; //after a popup was shown, wait x seconds until another popup can be shown
   final int popUpMillisecondsBetweenShotsMinimum = 200;
   final int popUpMillisecondsBetweenShotsMaximum =
       800; //real maximum is minimum + maximum (e.g. 200 + 800 = 1000)
@@ -47,7 +48,7 @@ class CustomDurationsProduction {
   final int delayPrizePopUp = 2;
 
   //page quote
-  final int switchQuote = 6;
+  final int switchQuote = 40;
   final int carouselTransistion = 800;
 
   // ##### salesforce ######################
@@ -55,7 +56,7 @@ class CustomDurationsProduction {
   final int catchUpValidUntil =
       60; //how long is a catchUp eligible for visualisation
   final int diagramStatusAufgestiegenAbgestiegen =
-      20; //seconds a group is marked as "aufgestiegen" or "abgestiegen"
+      60; //seconds a group is marked as "aufgestiegen" or "abgestiegen"
 }
 
 class CustomDurationsTest {
