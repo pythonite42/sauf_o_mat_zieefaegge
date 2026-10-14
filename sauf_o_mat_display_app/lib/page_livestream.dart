@@ -24,9 +24,12 @@ class _PageLivestreamState extends State<PageLivestream> {
   Map<String, dynamic> configuration = {
     'iceServers': [
       {
-        'urls': ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302']
-      }
-    ]
+        'urls': [
+          'stun:stun1.l.google.com:19302',
+          'stun:stun2.l.google.com:19302',
+        ],
+      },
+    ],
   };
 
   // This must be done as soon as app loads
@@ -45,9 +48,7 @@ class _PageLivestreamState extends State<PageLivestream> {
     };
 
     peerConnection?.onIceCandidate = (RTCIceCandidate candidate) {
-      ServerManager().send(
-        {"event": "ice", "data": candidate.toMap()},
-      );
+      ServerManager().send({"event": "ice", "data": candidate.toMap()});
     };
 
     peerConnection?.onConnectionState = (RTCPeerConnectionState state) {
@@ -80,11 +81,13 @@ class _PageLivestreamState extends State<PageLivestream> {
       await peerConnection!.setLocalDescription(answer);
       ServerManager().send({"event": "answer", "data": answer.toMap()});
     } else if (decoded["event"] == "ice") {
-      peerConnection?.addCandidate(RTCIceCandidate(
-        decoded["data"]["candidate"],
-        decoded["data"]["sdpMid"],
-        decoded["data"]["sdpMLineIndex"],
-      ));
+      peerConnection?.addCandidate(
+        RTCIceCandidate(
+          decoded["data"]["candidate"],
+          decoded["data"]["sdpMid"],
+          decoded["data"]["sdpMLineIndex"],
+        ),
+      );
     } else if (decoded["event"] == "paused") {
       setState(() => videoIsRunning = false);
     } else if (decoded["event"] == "resumed") {
@@ -113,7 +116,9 @@ class _PageLivestreamState extends State<PageLivestream> {
     final kissPaddingHorizontal = MySize(context).w * 0.03;
     final kissRotationAngle = 0.75;
     final double kissTextSize = 200;
-    final kissTextStyle = GoogleFonts.rye(textStyle: TextStyle(fontSize: kissTextSize, color: Colors.pink));
+    final kissTextStyle = GoogleFonts.rye(
+      textStyle: TextStyle(fontSize: kissTextSize, color: Colors.pink),
+    );
     final kissTextStyleOutline = GoogleFonts.rye(
       textStyle: TextStyle(
         fontSize: kissTextSize,
@@ -152,7 +157,8 @@ class _PageLivestreamState extends State<PageLivestream> {
                                   ? RTCVideoView(
                                       remoteVideo,
                                       mirror: false,
-                                      objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                                      objectFit: RTCVideoViewObjectFit
+                                          .RTCVideoViewObjectFitCover,
                                     )
                                   : Image.asset(
                                       "assets/kiss.gif",
@@ -177,26 +183,31 @@ class _PageLivestreamState extends State<PageLivestream> {
               ),
               Padding(
                 padding: EdgeInsets.only(
-                    top: MySize(context).h * 0.6, left: kissPaddingHorizontal, right: kissPaddingHorizontal),
+                  top: MySize(context).h * 0.6,
+                  left: kissPaddingHorizontal,
+                  right: kissPaddingHorizontal,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Transform.rotate(
-                        angle: kissRotationAngle,
-                        child: Stack(
-                          children: [
-                            Text("Kiss", style: kissTextStyleOutline),
-                            Text("Kiss", style: kissTextStyle),
-                          ],
-                        )),
+                      angle: kissRotationAngle,
+                      child: Stack(
+                        children: [
+                          Text("Kiss", style: kissTextStyleOutline),
+                          Text("Kiss", style: kissTextStyle),
+                        ],
+                      ),
+                    ),
                     Transform.rotate(
-                        angle: -kissRotationAngle,
-                        child: Stack(
-                          children: [
-                            Text(" Cam", style: kissTextStyleOutline),
-                            Text(" Cam", style: kissTextStyle),
-                          ],
-                        )),
+                      angle: -kissRotationAngle,
+                      child: Stack(
+                        children: [
+                          Text(" Cam", style: kissTextStyleOutline),
+                          Text(" Cam", style: kissTextStyle),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -207,12 +218,10 @@ class _PageLivestreamState extends State<PageLivestream> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
-                  padding: EdgeInsets.only(
-                    left: MySize(context).w * 0.1,
-                  ),
+                  padding: EdgeInsets.only(left: MySize(context).w * 0.05),
                   child: Container(
-                    height: MySize(context).h * 0.8,
-                    width: MySize(context).h * 0.8 * 0.86,
+                    height: MySize(context).h * 0.9,
+                    width: MySize(context).h * 0.9 * 0.86,
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         image: AssetImage('assets/parchment.png'),
@@ -220,23 +229,28 @@ class _PageLivestreamState extends State<PageLivestream> {
                       ),
                     ),
                     child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: MySize(context).w * 0.05,
-                          vertical: MySize(context).h * 0.05,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Text(
-                              "Howdy Cowboy!",
-                              style: GoogleFonts.rye(textStyle: TextStyle(fontSize: 55)),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MySize(context).w * 0.05,
+                        vertical: MySize(context).h * 0.05,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Text(
+                            "Howdy Cowboy!",
+                            style: GoogleFonts.rye(
+                              textStyle: TextStyle(fontSize: 85),
                             ),
-                            Text(
-                              "Du wurdest zum Abschuss freigegeben",
-                              style: GoogleFonts.rye(textStyle: TextStyle(fontSize: 55)),
+                          ),
+                          Text(
+                            "Du wurdest zum Abschuss freigegeben",
+                            style: GoogleFonts.rye(
+                              textStyle: TextStyle(fontSize: 62),
                             ),
-                          ],
-                        )),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -252,7 +266,9 @@ class _PageLivestreamState extends State<PageLivestream> {
                       final availableWidth = constraints.maxWidth;
                       final availableHeight = constraints.maxHeight;
 
-                      final size = availableWidth < availableHeight ? availableWidth : availableHeight;
+                      final size = availableWidth < availableHeight
+                          ? availableWidth
+                          : availableHeight;
 
                       return BeerGlassStack(
                         size: size,
@@ -261,7 +277,7 @@ class _PageLivestreamState extends State<PageLivestream> {
                     },
                   ),
                 ),
-              )
+              ),
             ],
           );
   }
@@ -294,27 +310,32 @@ class BeerGlassStack extends StatelessWidget {
             top: size * 0.11, // adjust to match foam position
             right: paddingRight,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(20), // match your inner glass radius
-              child: Stack(children: [
-                Container(
-                  width: beerGlassWidth,
-                  height: beerGlassHeight,
-                  color: Colors.black,
-                ),
-                SizedBox(
-                  width: beerGlassWidth,
-                  height: beerGlassHeight,
-                  child: videoRenderer != null
-                      ? RTCVideoView(
-                          videoRenderer!,
-                          objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                        )
-                      : Image.asset(
-                          'assets/bottle_spin.gif',
-                          fit: BoxFit.cover,
-                        ),
-                ),
-              ]),
+              borderRadius: BorderRadius.circular(
+                20,
+              ), // match your inner glass radius
+              child: Stack(
+                children: [
+                  Container(
+                    width: beerGlassWidth,
+                    height: beerGlassHeight,
+                    color: Colors.black,
+                  ),
+                  SizedBox(
+                    width: beerGlassWidth,
+                    height: beerGlassHeight,
+                    child: videoRenderer != null
+                        ? RTCVideoView(
+                            videoRenderer!,
+                            objectFit: RTCVideoViewObjectFit
+                                .RTCVideoViewObjectFitCover,
+                          )
+                        : Image.asset(
+                            'assets/bottle_spin.gif',
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                ],
+              ),
             ),
           ),
 
@@ -323,11 +344,9 @@ class BeerGlassStack extends StatelessWidget {
             top: size * 0.11,
             right: paddingRight,
             child: CustomPaint(
-              painter: BeerGlassBorderPainter(), // adjust painter to only paint border
-              child: SizedBox(
-                width: beerGlassWidth,
-                height: beerGlassHeight,
-              ),
+              painter:
+                  BeerGlassBorderPainter(), // adjust painter to only paint border
+              child: SizedBox(width: beerGlassWidth, height: beerGlassHeight),
             ),
           ),
 
@@ -393,43 +412,51 @@ class BeerGlassBorderPainter extends CustomPainter {
     final handleBottom = size.height * 0.85;
     final arcMidY = (handleTop + handleBottom) / 2;
 
-// Transition offsets
+    // Transition offsets
     final topBump = size.height * 0.055;
     final bottomDip = size.height * 0.055;
 
     final handlePath = Path();
 
-// Start at the glass edge (top flat point)
+    // Start at the glass edge (top flat point)
     handlePath.moveTo(handleLeft, handleTop);
 
-// Slight upward before curving out
+    // Slight upward before curving out
     handlePath.lineTo(handleLeft, handleTop - topBump);
 
-// Outer top curve
+    // Outer top curve
     handlePath.quadraticBezierTo(
-      handleRight, handleTop - topBump, // control point out and up
-      handleRight, arcMidY, // meet halfway down
+      handleRight,
+      handleTop - topBump, // control point out and up
+      handleRight,
+      arcMidY, // meet halfway down
     );
 
-// Outer bottom curve
+    // Outer bottom curve
     handlePath.quadraticBezierTo(
-      handleRight, handleBottom + bottomDip, // control point out and down
-      handleLeft, handleBottom + bottomDip, // curve inward
+      handleRight,
+      handleBottom + bottomDip, // control point out and down
+      handleLeft,
+      handleBottom + bottomDip, // curve inward
     );
 
-// Slight downward before returning up (bottom flat point)
+    // Slight downward before returning up (bottom flat point)
     handlePath.lineTo(handleLeft, handleBottom);
 
     handlePath.lineTo(handleLeft, handleBottom - handleWidth);
 
     handlePath.quadraticBezierTo(
-      handleRight - handleWidth, handleBottom + bottomDip - handleWidth, // control point out and down
-      handleRight - handleWidth, arcMidY, // meet halfway up
+      handleRight - handleWidth,
+      handleBottom + bottomDip - handleWidth, // control point out and down
+      handleRight - handleWidth,
+      arcMidY, // meet halfway up
     );
 
     handlePath.quadraticBezierTo(
-      handleRight - handleWidth, handleTop - topBump + handleWidth, // control point out and up
-      handleLeft, handleTop + handleWidth, // curve inward
+      handleRight - handleWidth,
+      handleTop - topBump + handleWidth, // control point out and up
+      handleLeft,
+      handleTop + handleWidth, // curve inward
     );
 
     outerPath.addPath(handlePath, Offset.zero);
@@ -467,18 +494,24 @@ class HeartClipper extends CustomClipper<Path> {
 
     // Left lobe
     path.cubicTo(
-      w * 0.1, h * -0.1, // control point 1 (pull up to make taller)
-      w * -0.3, h * 0.5, // control point 2 (left outward)
-      w * 0.5, h * 0.9, // bottom center
+      w * 0.1,
+      h * -0.1, // control point 1 (pull up to make taller)
+      w * -0.3,
+      h * 0.5, // control point 2 (left outward)
+      w * 0.5,
+      h * 0.9, // bottom center
     );
 
     path.moveTo(w * 0.5, h * 0.25);
 
     // Right lobe
     path.cubicTo(
-      w * 0.9, h * -0.1, // control point 3 (right lobe top)
-      w * 1.3, h * 0.5, // control point 4 (right outward)
-      w * 0.5, h * 0.9, // bottom center
+      w * 0.9,
+      h * -0.1, // control point 3 (right lobe top)
+      w * 1.3,
+      h * 0.5, // control point 4 (right outward)
+      w * 0.5,
+      h * 0.9, // bottom center
     );
 
     path.close();
