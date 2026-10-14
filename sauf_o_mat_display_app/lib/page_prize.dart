@@ -169,111 +169,113 @@ class _PagePrizeState extends State<PagePrize>
 
   @override
   Widget build(BuildContext context) {
-    final padding = MySize(context).h * 0.08;
-
     return Stack(
       children: [
         Padding(
-          padding: EdgeInsetsGeometry.all(padding),
+          padding: EdgeInsetsGeometry.symmetric(
+            horizontal: MySize(context).w * 0.03,
+          ),
           child: !dataLoaded
               ? Center(
                   child: CircularProgressIndicator(color: defaultOnPrimary),
                 )
-              : Row(
-                  children: [
-                    Expanded(
-                      flex: 5,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black, width: 8),
+              : Center(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black, width: 8),
+                          ),
+                          child: Image.asset(imagePrize, fit: BoxFit.cover),
                         ),
-                        child: Image.asset(imagePrize, fit: BoxFit.cover),
                       ),
-                    ),
 
-                    SizedBox(
-                      width: MySize(context).w * 0.05,
-                    ), // spacing between image and content
+                      SizedBox(
+                        width: MySize(context).w * 0.03,
+                      ), // spacing between image and content
 
-                    Expanded(
-                      flex: 4,
-                      child: Container(
-                        height: MySize(context).h * 0.83,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage('assets/parchment.png'),
-                            fit: BoxFit.cover,
+                      Expanded(
+                        flex: 4,
+                        child: Container(
+                          height: MySize(context).h * 0.83,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage('assets/parchment.png'),
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: MySize(context).w * 0.05,
-                            vertical: MySize(context).h * 0.05,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Spielregeln",
-                                maxLines: 1,
-                                style: GoogleFonts.rye(
-                                  textStyle: TextStyle(fontSize: 50),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: MySize(context).w * 0.05,
+                              vertical: MySize(context).h * 0.0,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Spielregeln",
+                                  maxLines: 1,
+                                  style: GoogleFonts.rye(
+                                    textStyle: TextStyle(fontSize: 64),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: MySize(context).h * 0.02),
-                              Text(
-                                "Nenne bei der Getränkebestellung deinen Gruppennamen um Punkte zu sammeln. Die Gruppe mit den meisten Punkten gewinnt.",
-                                style: TextStyle(fontSize: 25),
-                                maxLines: 5,
-                                textAlign: TextAlign.left,
-                              ),
-                              SizedBox(height: MySize(context).h * 0.02),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Aktuell\nführend',
-                                    textAlign: TextAlign.end,
-                                    style: GoogleFonts.rye(
-                                      textStyle: TextStyle(fontSize: 30),
-                                    ),
-                                  ),
-                                  SizedBox(width: MySize(context).w * 0.02),
-                                  CircleAvatar(
-                                    backgroundColor: Colors.transparent,
-                                    radius: MySize(context).h * 0.1,
-                                    child: ClipOval(
-                                      child: Image.network(
-                                        groupLogo,
-                                        errorBuilder: (context, _, _) =>
-                                            Image.asset(
-                                              "assets/placeholder_group.png",
-                                            ),
+                                SizedBox(height: MySize(context).h * 0.02),
+                                Text(
+                                  "Nenne bei der Getränkebestellung deinen Gruppennamen um Punkte zu sammeln. Die Gruppe mit den meisten Punkten gewinnt.",
+                                  style: TextStyle(fontSize: 30),
+                                  maxLines: 5,
+                                  textAlign: TextAlign.left,
+                                ),
+                                SizedBox(height: MySize(context).h * 0.02),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Aktuell\nführend',
+                                      textAlign: TextAlign.end,
+                                      style: GoogleFonts.rye(
+                                        textStyle: TextStyle(fontSize: 35),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: MySize(context).h * 0.03),
-                              if (_remainingTime != null)
-                                (_remainingTime!.inSeconds >
-                                        GlobalSettings.redThreshold)
-                                    ? _buildTimerBox(greenAccent, 25)
-                                    : (_remainingTime!.inSeconds >
-                                              GlobalSettings.flashThreshold ||
-                                          _remainingTime!.inSeconds == 0)
-                                    ? _buildTimerBox(redAccent, 25)
-                                    : FadeTransition(
-                                        opacity: _fadeAnimation,
-                                        child: _buildTimerBox(redAccent, 25),
+                                    SizedBox(width: MySize(context).w * 0.02),
+                                    CircleAvatar(
+                                      backgroundColor: Colors.transparent,
+                                      radius: MySize(context).h * 0.1,
+                                      child: ClipOval(
+                                        child: Image.network(
+                                          groupLogo,
+                                          errorBuilder: (context, _, _) =>
+                                              Image.asset(
+                                                "assets/placeholder_group.png",
+                                              ),
+                                        ),
                                       ),
-                            ],
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: MySize(context).h * 0.03),
+                                if (_remainingTime != null)
+                                  (_remainingTime!.inSeconds >
+                                          GlobalSettings.redThreshold)
+                                      ? _buildTimerBox(greenAccent)
+                                      : (_remainingTime!.inSeconds >
+                                                GlobalSettings.flashThreshold ||
+                                            _remainingTime!.inSeconds == 0)
+                                      ? _buildTimerBox(redAccent)
+                                      : FadeTransition(
+                                          opacity: _fadeAnimation,
+                                          child: _buildTimerBox(redAccent),
+                                        ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
         ),
         if (dotenv.env['MODE'] != "production")
@@ -287,7 +289,7 @@ class _PagePrizeState extends State<PagePrize>
     );
   }
 
-  Widget _buildTimerBox(Color color, double fontsize) {
+  Widget _buildTimerBox(Color color) {
     return Container(
       height: MySize(context).h * 0.1,
       padding: const EdgeInsets.all(16),
@@ -301,14 +303,14 @@ class _PagePrizeState extends State<PagePrize>
           Icon(
             Icons.timer,
             color: Colors.black,
-            size: MySize(context).h * 0.05,
+            size: MySize(context).h * 0.06,
           ),
           const SizedBox(width: 10),
           if (_remainingTime != null)
             Text(
               'Noch ${_formatDuration(_remainingTime!)}',
               style: TextStyle(
-                fontSize: fontsize,
+                fontSize: 30,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
@@ -379,8 +381,8 @@ class _WinnerPopupWidgetState extends State<WinnerPopupWidget>
   @override
   Widget build(BuildContext context) {
     final imageWidth = MySize(context).w * 0.2;
-    final imageHeight = MySize(context).h * 0.35;
-    final double textSize = 25;
+    final imageHeight = MySize(context).h * 0.55;
+    final double textSize = 35;
 
     return Center(
       child: ScaleTransition(
@@ -388,8 +390,8 @@ class _WinnerPopupWidgetState extends State<WinnerPopupWidget>
         child: RotationTransition(
           turns: _rotationAnimation,
           child: SizedBox(
-            height: MySize(context).h * 0.75,
-            width: MySize(context).w * 0.7,
+            height: MySize(context).h * 0.95,
+            width: MySize(context).w * 0.8,
             child: Stack(
               children: [
                 Align(
@@ -404,21 +406,20 @@ class _WinnerPopupWidgetState extends State<WinnerPopupWidget>
                   ),
                 ),
                 Positioned(
-                  left: MySize(context).w * 0.12,
+                  left: MySize(context).w * 0.11,
                   top: MySize(context).h * 0.08,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         GlobalSettings.newspaperTitle,
-                        style: NewspaperTextTheme.title.copyWith(fontSize: 65),
+                        style: NewspaperTextTheme.title.copyWith(fontSize: 90),
                       ),
                       Container(
                         padding: EdgeInsets.only(
-                          bottom: MySize(context).h * 0.03,
-                          top: MySize(context).h * 0.01,
+                          bottom: MySize(context).h * 0.02,
                         ),
-                        width: MySize(context).w * 0.4,
+                        width: MySize(context).w * 0.55,
                         child: Divider(thickness: 4),
                       ),
                       Row(
@@ -436,13 +437,13 @@ class _WinnerPopupWidgetState extends State<WinnerPopupWidget>
                           ),
                           SizedBox(width: MySize(context).w * 0.01),
                           SizedBox(
-                            width: MySize(context).w * 0.23,
+                            width: MySize(context).w * 0.34,
                             child: Column(
                               children: [
                                 Text(
                                   "Verbrecher Gefasst!",
                                   style: NewspaperTextTheme.headline.copyWith(
-                                    fontSize: 30,
+                                    fontSize: 50,
                                   ),
                                 ),
                                 SizedBox(height: MySize(context).h * 0.03),
