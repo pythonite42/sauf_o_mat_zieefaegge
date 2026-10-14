@@ -210,7 +210,7 @@ class _PageDiagramState extends State<PageDiagram> {
   @override
   Widget build(BuildContext context) {
     final legendBoxSize = MySize(context).h * 0.045;
-    final fontSizeLegend = 30.0;
+    final fontSizeLegend = 40.0;
 
     return Stack(
       children: [
@@ -227,7 +227,7 @@ class _PageDiagramState extends State<PageDiagram> {
         ),
         Padding(
           padding: EdgeInsetsGeometry.only(
-            left: MySize(context).h * 0.2,
+            left: MySize(context).h * 0.13,
             top: MySize(context).h * 0.12,
             right: MySize(context).h * 0.08,
             bottom: MySize(context).h * 0.04,
@@ -788,12 +788,12 @@ class _RacePopupWidgetState extends State<RacePopupWidget> {
                 children: [
                   Text(
                     'WANTED',
-                    style: GoogleFonts.rye(textStyle: TextStyle(fontSize: 70)),
+                    style: GoogleFonts.rye(textStyle: TextStyle(fontSize: 80)),
                   ),
                   Divider(thickness: 2),
                   Text(
                     'DEAD OR ALIVE',
-                    style: GoogleFonts.rye(textStyle: TextStyle(fontSize: 25)),
+                    style: GoogleFonts.rye(textStyle: TextStyle(fontSize: 40)),
                   ),
                   Divider(thickness: 2),
                   SizedBox(height: MySize(context).h * 0.01),
@@ -840,7 +840,7 @@ class _RacePopupWidgetState extends State<RacePopupWidget> {
                       child: Text(
                         leader,
                         style: GoogleFonts.rye(
-                          textStyle: TextStyle(fontSize: 30, height: 1),
+                          textStyle: TextStyle(fontSize: 35, height: 1),
                         ),
                         textAlign: TextAlign.center,
                         maxLines: 2,
@@ -854,19 +854,19 @@ class _RacePopupWidgetState extends State<RacePopupWidget> {
                       Text(
                         "Mit ",
                         style: GoogleFonts.rye(
-                          textStyle: TextStyle(fontSize: 30),
+                          textStyle: TextStyle(fontSize: 35),
                         ),
                       ),
                       Text(
                         pointsOfLeader.toString(),
                         style: GoogleFonts.rye(
-                          textStyle: TextStyle(fontSize: 30),
+                          textStyle: TextStyle(fontSize: 35),
                         ),
                       ),
                       Text(
                         " Punkten",
                         style: GoogleFonts.rye(
-                          textStyle: TextStyle(fontSize: 30),
+                          textStyle: TextStyle(fontSize: 35),
                         ),
                       ),
                     ],
@@ -874,7 +874,7 @@ class _RacePopupWidgetState extends State<RacePopupWidget> {
                   Divider(thickness: 2),
                   Text(
                     "Gejagt von ",
-                    style: GoogleFonts.rye(textStyle: TextStyle(fontSize: 30)),
+                    style: GoogleFonts.rye(textStyle: TextStyle(fontSize: 35)),
                   ),
                   SizedBox(height: MySize(context).h * 0.005),
                   SizedBox(
@@ -883,7 +883,7 @@ class _RacePopupWidgetState extends State<RacePopupWidget> {
                       child: Text(
                         chaser,
                         style: GoogleFonts.rye(
-                          textStyle: TextStyle(fontSize: 30, height: 1),
+                          textStyle: TextStyle(fontSize: 35, height: 1),
                         ),
                         textAlign: TextAlign.center,
                         maxLines: 2,
