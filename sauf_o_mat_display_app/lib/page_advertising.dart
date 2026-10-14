@@ -30,7 +30,10 @@ class PageAdvertising extends StatelessWidget {
             child: CircularProgressIndicator(color: defaultOnPrimary),
           );
         } else {
-          SalesforceService().setPageAdvertisingVisualizedAt(snapshot.data!["id"], DateTime.now());
+          SalesforceService().setPageAdvertisingVisualizedAt(
+            snapshot.data!["id"],
+            DateTime.now(),
+          );
           final headline = snapshot.data!["headline"] ?? "";
           final text = snapshot.data!["text"] ?? "";
           final imageUrl = snapshot.data!["image"] ?? "";
@@ -53,8 +56,6 @@ class PageAdvertising extends StatelessWidget {
                 top: MySize(context).h * 0.08,
                 child: Tilt(
                   disable: true,
-                  lightConfig: const LightConfig(disable: true),
-                  shadowConfig: const ShadowConfig(disable: true),
                   tiltConfig: TiltConfig(initial: Offset(-0.4, -0.4)),
                   child: Column(
                     children: [
@@ -63,11 +64,11 @@ class PageAdvertising extends StatelessWidget {
                         style: NewspaperTextTheme.title,
                       ),
                       Container(
-                        padding: EdgeInsets.only(bottom: MySize(context).h * 0.02),
-                        width: MySize(context).w * 0.55,
-                        child: Divider(
-                          thickness: 4,
+                        padding: EdgeInsets.only(
+                          bottom: MySize(context).h * 0.02,
                         ),
+                        width: MySize(context).w * 0.55,
+                        child: Divider(thickness: 4),
                       ),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +81,7 @@ class PageAdvertising extends StatelessWidget {
                               child: Image.network(
                                 imageUrl,
                                 width: imageWidth,
-                                errorBuilder: (context, _, __) => Container(
+                                errorBuilder: (context, _, _) => Container(
                                   width: imageWidth,
                                   height: imageWidth,
                                   color: Colors.grey[300],
@@ -93,48 +94,65 @@ class PageAdvertising extends StatelessWidget {
                             ),
                           ),
 
-                          SizedBox(width: MySize(context).w * 0.02), // spacing between image and content
+                          SizedBox(
+                            width: MySize(context).w * 0.02,
+                          ), // spacing between image and content
                           SizedBox(
                             width: MySize(context).w * 0.27,
-                            child: Builder(builder: (context) {
-                              final TextStyle headlineStyle =
-                                  NewspaperTextTheme.headline.copyWith(height: 1, fontSize: 45);
-                              int headlineLines = 1;
-                              try {
-                                final tp = TextPainter(
-                                  text: TextSpan(text: headline, style: headlineStyle),
-                                  textDirection: TextDirection.ltr,
-                                  maxLines: 2,
+                            child: Builder(
+                              builder: (context) {
+                                final TextStyle headlineStyle =
+                                    NewspaperTextTheme.headline.copyWith(
+                                      height: 1,
+                                      fontSize: 45,
+                                    );
+                                int headlineLines = 1;
+                                try {
+                                  final tp = TextPainter(
+                                    text: TextSpan(
+                                      text: headline,
+                                      style: headlineStyle,
+                                    ),
+                                    textDirection: TextDirection.ltr,
+                                    maxLines: 2,
+                                  );
+                                  tp.layout(maxWidth: MySize(context).w * 0.27);
+                                  headlineLines = tp
+                                      .computeLineMetrics()
+                                      .length;
+                                } catch (e) {
+                                  headlineLines = 2;
+                                }
+
+                                final int bodyMaxLines = (headlineLines <= 1)
+                                    ? 11
+                                    : 10;
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      headline,
+                                      textAlign: TextAlign.center,
+                                      style: headlineStyle,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    SizedBox(height: MySize(context).h * 0.02),
+                                    Text(
+                                      text,
+                                      textAlign: TextAlign.left,
+                                      style: NewspaperTextTheme.body.copyWith(
+                                        height: 1,
+                                        fontSize: 32,
+                                      ),
+                                      maxLines: bodyMaxLines,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                 );
-                                tp.layout(maxWidth: MySize(context).w * 0.27);
-                                headlineLines = tp.computeLineMetrics().length;
-                              } catch (e) {
-                                headlineLines = 2;
-                              }
-
-                              final int bodyMaxLines = (headlineLines <= 1) ? 11 : 10;
-
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  headline,
-                                  textAlign: TextAlign.center,
-                                    style: headlineStyle,
-                                  maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: MySize(context).h * 0.02),
-                                Text(
-                                  text,
-                                  textAlign: TextAlign.left,
-                                  style: NewspaperTextTheme.body.copyWith(height: 1, fontSize: 32),
-                                    maxLines: bodyMaxLines,
-                                    overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                              );
-                            }),
+                              },
+                            ),
                           ),
                         ],
                       ),

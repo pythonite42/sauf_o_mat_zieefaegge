@@ -12,7 +12,11 @@ class PieChartData {
   final Color color;
   final bool showAmountInsteadOfPoints;
 
-  PieChartData({required this.value, required this.color, this.showAmountInsteadOfPoints = false});
+  PieChartData({
+    required this.value,
+    required this.color,
+    this.showAmountInsteadOfPoints = false,
+  });
 }
 
 class PageTop3 extends StatefulWidget {
@@ -43,17 +47,28 @@ class _PageTop3State extends State<PageTop3> {
   }
 
   void _startAutoReloadChartData() {
-    _chartDataReloadTimer = Timer.periodic(Duration(seconds: customDurations.reloadDataTop3), (_) {
-      _loadChartData();
-    });
+    _chartDataReloadTimer = Timer.periodic(
+      Duration(seconds: customDurations.reloadDataTop3),
+      (_) {
+        _loadChartData();
+      },
+    );
   }
 
   Future<void> _loadChartData() async {
     try {
       List<Map> newDataMapList = await SalesforceService().getPageTop3();
       newDataMapList.sort((a, b) {
-        final aSum = (a["longdrink"] ?? 0) + (a["beer"] ?? 0) + (a["shot"] ?? 0) + (a["luz"] ?? 0);
-        final bSum = (b["longdrink"] ?? 0) + (b["beer"] ?? 0) + (b["shot"] ?? 0) + (b["luz"] ?? 0);
+        final aSum =
+            (a["longdrink"] ?? 0) +
+            (a["beer"] ?? 0) +
+            (a["shot"] ?? 0) +
+            (a["luz"] ?? 0);
+        final bSum =
+            (b["longdrink"] ?? 0) +
+            (b["beer"] ?? 0) +
+            (b["shot"] ?? 0) +
+            (b["luz"] ?? 0);
         return bSum.compareTo(aSum);
       });
 
@@ -62,30 +77,51 @@ class _PageTop3State extends State<PageTop3> {
           groupName1 = newDataMapList[0]["groupName"];
           groupLogo1 = newDataMapList[0]["groupLogo"];
           _chartData1 = [
-            PieChartData(value: newDataMapList[0]["longdrink"], color: sunsetRed, showAmountInsteadOfPoints: true),
+            PieChartData(
+              value: newDataMapList[0]["longdrink"],
+              color: sunsetRed,
+              showAmountInsteadOfPoints: true,
+            ),
             PieChartData(value: newDataMapList[0]["beer"], color: westernGold),
             PieChartData(value: newDataMapList[0]["shot"], color: cactusGreen),
-            PieChartData(value: newDataMapList[0]["luz"], color: lightRusticBrown),
+            PieChartData(
+              value: newDataMapList[0]["luz"],
+              color: lightRusticBrown,
+            ),
           ];
 
           groupName2 = newDataMapList[1]["groupName"];
           groupLogo2 = newDataMapList[1]["groupLogo"];
 
           _chartData2 = [
-            PieChartData(value: newDataMapList[1]["longdrink"], color: sunsetRed, showAmountInsteadOfPoints: true),
+            PieChartData(
+              value: newDataMapList[1]["longdrink"],
+              color: sunsetRed,
+              showAmountInsteadOfPoints: true,
+            ),
             PieChartData(value: newDataMapList[1]["beer"], color: westernGold),
             PieChartData(value: newDataMapList[1]["shot"], color: cactusGreen),
-            PieChartData(value: newDataMapList[1]["luz"], color: lightRusticBrown),
+            PieChartData(
+              value: newDataMapList[1]["luz"],
+              color: lightRusticBrown,
+            ),
           ];
 
           groupName3 = newDataMapList[2]["groupName"];
           groupLogo3 = newDataMapList[2]["groupLogo"];
 
           _chartData3 = [
-            PieChartData(value: newDataMapList[2]["longdrink"], color: sunsetRed, showAmountInsteadOfPoints: true),
+            PieChartData(
+              value: newDataMapList[2]["longdrink"],
+              color: sunsetRed,
+              showAmountInsteadOfPoints: true,
+            ),
             PieChartData(value: newDataMapList[2]["beer"], color: westernGold),
             PieChartData(value: newDataMapList[2]["shot"], color: cactusGreen),
-            PieChartData(value: newDataMapList[2]["luz"], color: lightRusticBrown),
+            PieChartData(
+              value: newDataMapList[2]["luz"],
+              color: lightRusticBrown,
+            ),
           ];
         });
       }
@@ -116,17 +152,31 @@ class _PageTop3State extends State<PageTop3> {
             children: [
               Row(
                 children: [
-                  Container(height: legendBoxSize, width: legendBoxSize, color: sunsetRed),
+                  Container(
+                    height: legendBoxSize,
+                    width: legendBoxSize,
+                    color: sunsetRed,
+                  ),
                   SizedBox(width: 15),
-                  Text("Bargetränk", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold))
+                  Text(
+                    "Bargetränk",
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
               SizedBox(width: 50),
               Row(
                 children: [
-                  Container(height: legendBoxSize, width: legendBoxSize, color: westernGold),
+                  Container(
+                    height: legendBoxSize,
+                    width: legendBoxSize,
+                    color: westernGold,
+                  ),
                   SizedBox(width: 15),
-                  Text("Bier", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold))
+                  Text(
+                    "Bier",
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
             ],
@@ -140,17 +190,31 @@ class _PageTop3State extends State<PageTop3> {
             children: [
               Row(
                 children: [
-                  Container(height: legendBoxSize, width: legendBoxSize, color: cactusGreen),
+                  Container(
+                    height: legendBoxSize,
+                    width: legendBoxSize,
+                    color: cactusGreen,
+                  ),
                   SizedBox(width: 15),
-                  Text("Shot", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold))
+                  Text(
+                    "Shot",
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
               SizedBox(width: 50),
               Row(
                 children: [
-                  Container(height: legendBoxSize, width: legendBoxSize, color: lightRusticBrown),
+                  Container(
+                    height: legendBoxSize,
+                    width: legendBoxSize,
+                    color: lightRusticBrown,
+                  ),
                   SizedBox(width: 15),
-                  Text("Luz", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold))
+                  Text(
+                    "Luz",
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
             ],
@@ -201,21 +265,22 @@ class _PageTop3State extends State<PageTop3> {
                     ),
                   ),
                 ],
-              )
+              ),
       ],
     );
   }
 }
 
 class PieChartWithImage extends StatelessWidget {
-  const PieChartWithImage(
-      {super.key,
-      required this.chartData,
-      required this.place,
-      required this.badge,
-      required this.groupName,
-      required this.groupLogo,
-      required this.size});
+  const PieChartWithImage({
+    super.key,
+    required this.chartData,
+    required this.place,
+    required this.badge,
+    required this.groupName,
+    required this.groupLogo,
+    required this.size,
+  });
 
   final List<PieChartData> chartData;
   final int place;
@@ -232,66 +297,68 @@ class PieChartWithImage extends StatelessWidget {
     }
     var centerSize = size * 0.55;
 
-    return Column(children: [
-      Text(
-        "$badge $place. Platz",
-        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-      ),
-      SizedBox(height: 20),
-      SizedBox(
-        width: size,
-        height: size,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            CustomPaint(
-              size: Size(size, size),
-              painter: PieChartPainter(data: chartData),
-            ),
-            ClipOval(
-              child: SizedBox(
-                width: centerSize,
-                height: centerSize,
-                child: Stack(
-                  alignment: AlignmentDirectional.center,
-                  children: [
-                    Image.network(
-                      groupLogo,
-                      width: centerSize,
-                      height: centerSize,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, _, __) => Image.asset(
-                        'assets/placeholder_group.png',
+    return Column(
+      children: [
+        Text(
+          "$badge $place. Platz",
+          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 20),
+        SizedBox(
+          width: size,
+          height: size,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CustomPaint(
+                size: Size(size, size),
+                painter: PieChartPainter(data: chartData),
+              ),
+              ClipOval(
+                child: SizedBox(
+                  width: centerSize,
+                  height: centerSize,
+                  child: Stack(
+                    alignment: AlignmentDirectional.center,
+                    children: [
+                      Image.network(
+                        groupLogo,
                         width: centerSize,
                         height: centerSize,
                         fit: BoxFit.cover,
+                        errorBuilder: (context, _, _) => Image.asset(
+                          'assets/placeholder_group.png',
+                          width: centerSize,
+                          height: centerSize,
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                    ),
-                    CustomPaint(
-                      size: Size(centerSize, centerSize),
-                      painter: CenteredTextPainter(
-                        text: "$total",
-                        fontSize: total < 999
-                            ? size * 0.3
-                            : total < 9999
-                                ? size * 0.22
-                                : size * 0.18,
-                        color: transparentWhite,
+                      CustomPaint(
+                        size: Size(centerSize, centerSize),
+                        painter: CenteredTextPainter(
+                          text: "$total",
+                          fontSize: total < 999
+                              ? size * 0.3
+                              : total < 9999
+                              ? size * 0.22
+                              : size * 0.18,
+                          color: transparentWhite,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      SizedBox(height: 20),
-      Text(
-        groupName,
-        style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
-      )
-    ]);
+        SizedBox(height: 20),
+        Text(
+          groupName,
+          style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
   }
 }
 

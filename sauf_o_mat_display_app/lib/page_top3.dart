@@ -50,9 +50,12 @@ class _PageTop3State extends State<PageTop3> {
   }
 
   void _startAutoReloadData() {
-    _dataReloadTimer = Timer.periodic(Duration(seconds: customDurations.reloadDataTop3), (_) {
-      _loadData();
-    });
+    _dataReloadTimer = Timer.periodic(
+      Duration(seconds: customDurations.reloadDataTop3),
+      (_) {
+        _loadData();
+      },
+    );
   }
 
   Future<void> _loadData() async {
@@ -64,15 +67,17 @@ class _PageTop3State extends State<PageTop3> {
         setState(() {
           _groupData.clear();
           for (var element in newDataMapList) {
-            _groupData.add(GroupData(
-              logoUrl: element["groupLogo"],
-              name: element["name"],
-              longdrink: element["longdrink"],
-              beer: element["beer"],
-              shot: element["shot"],
-              luz: element["luz"],
-              points: element["punktzahl"],
-            ));
+            _groupData.add(
+              GroupData(
+                logoUrl: element["groupLogo"],
+                name: element["name"],
+                longdrink: element["longdrink"],
+                beer: element["beer"],
+                shot: element["shot"],
+                luz: element["luz"],
+                points: element["punktzahl"],
+              ),
+            );
           }
         });
       }
@@ -83,7 +88,8 @@ class _PageTop3State extends State<PageTop3> {
 
   Future<void> _loadBackgroundImages() async {
     try {
-      List<Map> newDataMapList = await SalesforceService().getPageTop3BackgroundImages();
+      List<Map> newDataMapList = await SalesforceService()
+          .getPageTop3BackgroundImages();
 
       if (mounted) {
         setState(() {
@@ -146,7 +152,9 @@ class _PageTop3State extends State<PageTop3> {
                     ),
                   if (_backgroundImages.length > 2)
                     Positioned(
-                      left: (MySize(context).w / 2) - (backgroundImageSize * parchmentImageAspectRatio / 2),
+                      left:
+                          (MySize(context).w / 2) -
+                          (backgroundImageSize * parchmentImageAspectRatio / 2),
                       bottom: -MySize(context).h * 0.22,
                       child: ImagePoster(
                         size: backgroundImageSize,
@@ -175,7 +183,9 @@ class _PageTop3State extends State<PageTop3> {
                     ),
                   ),
                   Positioned(
-                    left: (MySize(context).w / 2) - (size1 * parchmentImageAspectRatio / 2),
+                    left:
+                        (MySize(context).w / 2) -
+                        (size1 * parchmentImageAspectRatio / 2),
                     child: WantedPoster(
                       data: _groupData[0],
                       place: 1,
@@ -183,42 +193,52 @@ class _PageTop3State extends State<PageTop3> {
                     ),
                   ),
                 ],
-              )
+              ),
       ],
     );
   }
 }
 
 class ImagePoster extends StatelessWidget {
-  const ImagePoster({super.key, required this.size, required this.name, required this.imageUrl});
+  const ImagePoster({
+    super.key,
+    required this.size,
+    required this.name,
+    required this.imageUrl,
+  });
   final double size;
   final String name;
   final String imageUrl;
   @override
   Widget build(BuildContext context) {
     return Container(
-        height: size,
-        width: size * parchmentImageAspectRatio,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/parchment.png'),
-            fit: BoxFit.cover,
-          ),
+      height: size,
+      width: size * parchmentImageAspectRatio,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/parchment.png'),
+          fit: BoxFit.cover,
         ),
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: size * 0.1,
-              vertical: size * 0.06,
-            ),
-            child: Column(mainAxisAlignment: MainAxisAlignment.start, mainAxisSize: MainAxisSize.max, children: [
+      ),
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: size * 0.1,
+            vertical: size * 0.06,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: [
               Padding(
                 padding: EdgeInsets.only(bottom: size * 0.02),
                 child: Text(
                   name,
                   maxLines: 1,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.06)),
+                  style: GoogleFonts.rye(
+                    textStyle: TextStyle(fontSize: size * 0.06),
+                  ),
                 ),
               ),
               Expanded(
@@ -228,14 +248,21 @@ class ImagePoster extends StatelessWidget {
                   errorBuilder: (context, error, stackTrace) => SizedBox(),
                 ),
               ),
-            ]),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 
 class WantedPoster extends StatelessWidget {
-  const WantedPoster({super.key, required this.data, required this.place, required this.size});
+  const WantedPoster({
+    super.key,
+    required this.data,
+    required this.place,
+    required this.size,
+  });
 
   final GroupData data;
   final int place;
@@ -263,23 +290,29 @@ class WantedPoster extends StatelessWidget {
             children: [
               Text(
                 'WANTED',
-                style: GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.08)),
+                style: GoogleFonts.rye(
+                  textStyle: TextStyle(fontSize: size * 0.08),
+                ),
               ),
               Divider(thickness: 2),
               Text(
                 'Staatsfeind Nr. $place',
-                style: GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.05)),
+                style: GoogleFonts.rye(
+                  textStyle: TextStyle(fontSize: size * 0.05),
+                ),
               ),
               Text(
                 data.name,
-                style: GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.04)),
+                style: GoogleFonts.rye(
+                  textStyle: TextStyle(fontSize: size * 0.04),
+                ),
               ),
               Divider(thickness: 2),
               SizedBox(height: size * 0.02),
               Image.network(
                 data.logoUrl,
                 height: size * 0.3,
-                errorBuilder: (context, _, __) => Image.asset(
+                errorBuilder: (context, _, _) => Image.asset(
                   'assets/placeholder_group.png',
                   height: size * 0.3,
                 ),
@@ -295,16 +328,24 @@ class WantedPoster extends StatelessWidget {
                       children: [
                         Text(
                           "Gesucht für",
-                          style: GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.04)),
+                          style: GoogleFonts.rye(
+                            textStyle: TextStyle(fontSize: size * 0.04),
+                          ),
                         ),
                         Text(
                           data.points.toString(),
-                          style:
-                              GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.05, fontWeight: FontWeight.bold)),
+                          style: GoogleFonts.rye(
+                            textStyle: TextStyle(
+                              fontSize: size * 0.05,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                         Text(
                           "Punkte",
-                          style: GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.04)),
+                          style: GoogleFonts.rye(
+                            textStyle: TextStyle(fontSize: size * 0.04),
+                          ),
                         ),
                       ],
                     ),
@@ -328,20 +369,28 @@ class WantedPoster extends StatelessWidget {
                             children: [
                               Text(
                                 "${data.longdrink}",
-                                style: GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.04)),
+                                style: GoogleFonts.rye(
+                                  textStyle: TextStyle(fontSize: size * 0.04),
+                                ),
                               ),
                               Text(
                                 "${data.beer}",
-                                style: GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.04)),
+                                style: GoogleFonts.rye(
+                                  textStyle: TextStyle(fontSize: size * 0.04),
+                                ),
                               ),
                               Text(
                                 "${data.shot}",
-                                style: GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.04)),
+                                style: GoogleFonts.rye(
+                                  textStyle: TextStyle(fontSize: size * 0.04),
+                                ),
                               ),
                               Text(
                                 "${data.luz}",
-                                style: GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.04)),
-                              )
+                                style: GoogleFonts.rye(
+                                  textStyle: TextStyle(fontSize: size * 0.04),
+                                ),
+                              ),
                             ],
                           ),
                           Column(
@@ -350,20 +399,28 @@ class WantedPoster extends StatelessWidget {
                             children: [
                               Text(
                                 "Bargetränke",
-                                style: GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.04)),
+                                style: GoogleFonts.rye(
+                                  textStyle: TextStyle(fontSize: size * 0.04),
+                                ),
                               ),
                               Text(
                                 "Bier",
-                                style: GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.04)),
+                                style: GoogleFonts.rye(
+                                  textStyle: TextStyle(fontSize: size * 0.04),
+                                ),
                               ),
                               Text(
                                 "Shots",
-                                style: GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.04)),
+                                style: GoogleFonts.rye(
+                                  textStyle: TextStyle(fontSize: size * 0.04),
+                                ),
                               ),
                               Text(
                                 "Luz",
-                                style: GoogleFonts.rye(textStyle: TextStyle(fontSize: size * 0.04)),
-                              )
+                                style: GoogleFonts.rye(
+                                  textStyle: TextStyle(fontSize: size * 0.04),
+                                ),
+                              ),
                             ],
                           ),
                         ],
