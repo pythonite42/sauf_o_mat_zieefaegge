@@ -21,9 +21,7 @@ class CustomDurationsProduction {
   final int navigationTransition = 1200;
   final int changeToPrizePageBeforePrizeTime =
       5 * 60; //seconds before prize time the display changes to prize page
-  final int stayOnPrizePageAfterPrizeTime =
-      5 *
-      60; //seconds after prize time the display changes back to normal navigation
+  final int stayOnPrizePageAfterPrizeTime = 5 * 60; //seconds after prize time the display changes back to normal navigation
 
   //page diagram
   final int reloadDataDiagram = 7;
@@ -31,8 +29,7 @@ class CustomDurationsProduction {
       8; //every x seconds the chart scrolls one bar down
   final int speedChartScroll = 500;
   final int showPopup = 60;
-  final int popUpCooldown =
-      30; //after a popup was shown, wait x seconds until another popup can be shown
+  final int popUpCooldown = 30; //after a popup was shown, wait x seconds until another popup can be shown
   final int popUpMillisecondsBetweenShotsMinimum = 200;
   final int popUpMillisecondsBetweenShotsMaximum =
       800; //real maximum is minimum + maximum (e.g. 200 + 800 = 1000)
@@ -67,8 +64,7 @@ class CustomDurationsTest {
   final int navigationTransition = 800;
   final int changeToPrizePageBeforePrizeTime =
       5 * 60; //seconds before prize time the display changes to prize page
-  final int stayOnPrizePageAfterPrizeTime =
-      60; //seconds after prize time the display changes back to normal navigation
+  final int stayOnPrizePageAfterPrizeTime = 60; //seconds after prize time the display changes back to normal navigation
 
   //page diagram
   final int reloadDataDiagram = 7;
@@ -76,8 +72,7 @@ class CustomDurationsTest {
       8; //every x seconds the chart scrolls one bar down
   final int speedChartScroll = 500;
   final int showPopup = 10;
-  final int popUpCooldown =
-      20; //after a popup was shown, wait x seconds until another popup can be shown
+  final int popUpCooldown = 20; //after a popup was shown, wait x seconds until another popup can be shown
   final int popUpMillisecondsBetweenShotsMinimum = 200;
   final int popUpMillisecondsBetweenShotsMaximum =
       400; //real maximum is minimum + maximum (e.g. 200 + 400 = 600)
@@ -117,9 +112,9 @@ class GlobalSettings {
   static const int flashThreshold = 60;
   static const int redThreshold = 300;
   static List<String> prizeNames = [
-    "Cowboyhut und 0,0003 Meilen Shots",
-    "Cowboyhut und 39 Zoll Shots",
-    "Cowboyhut und eine Säule",
+    "Fünf Halstücher",
+    "Ein Shotbrett",
+    "Eine Säule Bachwasser",
   ];
   static List<DateTime> prizeTimes = [
     DateTime(2026, 11, 28, 22, 45),
