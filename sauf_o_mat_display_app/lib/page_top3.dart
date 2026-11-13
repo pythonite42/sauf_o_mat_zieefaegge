@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sauf_o_mat_display_app/backend_connection.dart';
@@ -115,9 +116,9 @@ class _PageTop3State extends State<PageTop3> {
 
   @override
   Widget build(BuildContext context) {
-    double size1 = MySize(context).w * 0.4;
-    double size2 = MySize(context).w * 0.35;
-    double size3 = MySize(context).w * 0.35;
+    double size1 = MySize(context).w * 0.42;
+    double size2 = MySize(context).w * 0.4;
+    double size3 = MySize(context).w * 0.37;
     double backgroundImageSize = MySize(context).w * 0.3;
     return Stack(
       children: [
@@ -133,7 +134,7 @@ class _PageTop3State extends State<PageTop3> {
                   if (_backgroundImages.isNotEmpty)
                     Positioned(
                       left: MySize(context).w * 0.05,
-                      top: MySize(context).h * 0.0,
+                      top: -MySize(context).h * 0.04,
                       child: ImagePoster(
                         size: backgroundImageSize,
                         name: _backgroundImages[0]["name"],
@@ -152,9 +153,7 @@ class _PageTop3State extends State<PageTop3> {
                     ),
                   if (_backgroundImages.length > 2)
                     Positioned(
-                      left:
-                          (MySize(context).w / 2) -
-                          (backgroundImageSize * parchmentImageAspectRatio / 2),
+                      left: MySize(context).w * 0.39,
                       bottom: -MySize(context).h * 0.22,
                       child: ImagePoster(
                         size: backgroundImageSize,
@@ -165,8 +164,8 @@ class _PageTop3State extends State<PageTop3> {
 
                   //top3 posters:
                   Positioned(
-                    bottom: MySize(context).h * 0.02,
-                    right: MySize(context).w * 0.07,
+                    bottom: MySize(context).h * 0.01,
+                    right: MySize(context).w * 0.04,
                     child: WantedPoster(
                       data: _groupData[2],
                       place: 3,
@@ -174,8 +173,8 @@ class _PageTop3State extends State<PageTop3> {
                     ),
                   ),
                   Positioned(
-                    top: MySize(context).h * 0.3,
-                    left: MySize(context).w * 0.07,
+                    top: MySize(context).h * 0.24,
+                    left: MySize(context).w * 0.02,
                     child: WantedPoster(
                       data: _groupData[1],
                       place: 2,
@@ -186,6 +185,7 @@ class _PageTop3State extends State<PageTop3> {
                     left:
                         (MySize(context).w / 2) -
                         (size1 * parchmentImageAspectRatio / 2),
+                    top: -MySize(context).h * 0.03,
                     child: WantedPoster(
                       data: _groupData[0],
                       place: 1,
@@ -270,6 +270,11 @@ class WantedPoster extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bodyTextStyle = TextStyle(
+      fontSize: size * 0.05,
+      fontWeight: FontWeight.bold,
+      height: 1.0,
+    );
     return Container(
       height: size,
       width: size * parchmentImageAspectRatio,
@@ -282,8 +287,8 @@ class WantedPoster extends StatelessWidget {
       child: Center(
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: size * 0.07,
-            vertical: size * 0.045,
+            horizontal: size * 0.04,
+            vertical: size * 0.02,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -291,10 +296,15 @@ class WantedPoster extends StatelessWidget {
               Text(
                 'WANTED',
                 style: GoogleFonts.rye(
-                  textStyle: TextStyle(fontSize: size * 0.08),
+                  textStyle: TextStyle(fontSize: size * 0.09, height: 1.2),
                 ),
               ),
-              Divider(thickness: 2),
+              Divider(
+                thickness: 2,
+                height: size * 0.02,
+                indent: size * 0.04,
+                endIndent: size * 0.04,
+              ),
               Text(
                 'Staatsfeind Nr. $place',
                 style: GoogleFonts.rye(
@@ -303,23 +313,32 @@ class WantedPoster extends StatelessWidget {
               ),
               Text(
                 data.name,
-                style: GoogleFonts.rye(
-                  textStyle: TextStyle(fontSize: size * 0.04),
+                style: TextStyle(
+                  fontSize: size * 0.06,
+                  fontWeight: FontWeight.bold,
+                  height: 1.0,
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
-              Divider(thickness: 2),
-              SizedBox(height: size * 0.02),
+              Divider(
+                thickness: 2,
+                indent: size * 0.04,
+                endIndent: size * 0.04,
+              ),
+              SizedBox(height: size * 0.005),
               Image.network(
                 data.logoUrl,
                 height: size * 0.3,
                 errorBuilder: (context, _, _) => Image.asset(
                   'assets/placeholder_group.png',
-                  height: size * 0.3,
+                  height: size * 0.32,
                 ),
               ),
-              SizedBox(height: size * 0.02),
+              SizedBox(height: size * 0.01),
               SizedBox(
-                height: size * 0.25,
+                height: size * 0.27,
                 child: Row(
                   children: [
                     Column(
@@ -329,14 +348,14 @@ class WantedPoster extends StatelessWidget {
                         Text(
                           "Gesucht für",
                           style: GoogleFonts.rye(
-                            textStyle: TextStyle(fontSize: size * 0.04),
+                            textStyle: TextStyle(fontSize: size * 0.05),
                           ),
                         ),
                         Text(
                           data.points.toString(),
                           style: GoogleFonts.rye(
                             textStyle: TextStyle(
-                              fontSize: size * 0.05,
+                              fontSize: size * 0.07,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -344,83 +363,44 @@ class WantedPoster extends StatelessWidget {
                         Text(
                           "Punkte",
                           style: GoogleFonts.rye(
-                            textStyle: TextStyle(fontSize: size * 0.04),
+                            textStyle: TextStyle(fontSize: size * 0.05),
                           ),
                         ),
                       ],
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: size * 0.02),
-                      child: SizedBox(
-                        height: size * 0.25,
-                        child: VerticalDivider(
-                          color: Colors.black,
-                          thickness: 2,
-                        ),
+                    SizedBox(
+                      height: size * 0.25,
+                      child: VerticalDivider(
+                        color: Colors.black,
+                        thickness: 2,
+                        width: size * 0.05,
                       ),
                     ),
                     Expanded(
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        spacing: size * 0.02,
                         children: [
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             mainAxisAlignment: MainAxisAlignment.center,
+                            spacing: size * 0.01,
                             children: [
-                              Text(
-                                "${data.longdrink}",
-                                style: GoogleFonts.rye(
-                                  textStyle: TextStyle(fontSize: size * 0.04),
-                                ),
-                              ),
-                              Text(
-                                "${data.beer}",
-                                style: GoogleFonts.rye(
-                                  textStyle: TextStyle(fontSize: size * 0.04),
-                                ),
-                              ),
-                              Text(
-                                "${data.shot}",
-                                style: GoogleFonts.rye(
-                                  textStyle: TextStyle(fontSize: size * 0.04),
-                                ),
-                              ),
-                              Text(
-                                "${data.luz}",
-                                style: GoogleFonts.rye(
-                                  textStyle: TextStyle(fontSize: size * 0.04),
-                                ),
-                              ),
+                              Text("${data.longdrink}", style: bodyTextStyle),
+                              Text("${data.beer}", style: bodyTextStyle),
+                              Text("${data.shot}", style: bodyTextStyle),
+                              Text("${data.luz}", style: bodyTextStyle),
                             ],
                           ),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
+                            spacing: size * 0.01,
                             children: [
-                              Text(
-                                "Bargetränke",
-                                style: GoogleFonts.rye(
-                                  textStyle: TextStyle(fontSize: size * 0.04),
-                                ),
-                              ),
-                              Text(
-                                "Bier",
-                                style: GoogleFonts.rye(
-                                  textStyle: TextStyle(fontSize: size * 0.04),
-                                ),
-                              ),
-                              Text(
-                                "Shots",
-                                style: GoogleFonts.rye(
-                                  textStyle: TextStyle(fontSize: size * 0.04),
-                                ),
-                              ),
-                              Text(
-                                "Luz",
-                                style: GoogleFonts.rye(
-                                  textStyle: TextStyle(fontSize: size * 0.04),
-                                ),
-                              ),
+                              Text("Bargetränke", style: bodyTextStyle),
+                              Text("Bier", style: bodyTextStyle),
+                              Text("Shots", style: bodyTextStyle),
+                              Text("Luz", style: bodyTextStyle),
                             ],
                           ),
                         ],
