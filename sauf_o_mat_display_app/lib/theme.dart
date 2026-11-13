@@ -33,7 +33,7 @@ final ThemeData appTheme = ThemeData(
     foregroundColor: Colors.white,
     elevation: 2,
     titleTextStyle: TextStyle(
-      fontFamily: 'Georgia',
+      fontFamily: 'Roboto',
       fontSize: 20,
       fontWeight: FontWeight.bold,
       color: Colors.white,
@@ -44,7 +44,7 @@ final ThemeData appTheme = ThemeData(
       backgroundColor: const Color(0xFFD2691E),
       foregroundColor: Colors.white,
       textStyle: const TextStyle(
-        fontFamily: 'Georgia',
+        fontFamily: 'Roboto',
         fontWeight: FontWeight.bold,
       ),
       shape: RoundedRectangleBorder(
@@ -56,35 +56,23 @@ final ThemeData appTheme = ThemeData(
     headlineSmall: const TextStyle(
       color: Color(0xFF8B4513),
       fontWeight: FontWeight.bold,
-      fontFamily: 'Georgia',
+      fontFamily: 'Roboto',
     ),
-    titleLarge: TextStyle(
-      color: Colors.brown.shade800,
-      fontSize: 60,
-    ),
-    titleMedium: TextStyle(
-      color: Colors.brown.shade800,
-      fontFamily: 'Georgia',
-    ),
-    bodyMedium: TextStyle(
-      color: Colors.brown.shade900,
-      fontFamily: 'Georgia',
-    ),
-    bodyLarge: TextStyle(
-      color: Colors.brown.shade900,
-      fontFamily: 'Georgia',
-    ),
+    titleLarge: TextStyle(color: Colors.brown.shade800, fontSize: 60),
+    titleMedium: TextStyle(color: Colors.brown.shade800, fontFamily: 'Roboto'),
+    bodyMedium: TextStyle(color: Colors.brown.shade900, fontFamily: 'Roboto'),
+    bodyLarge: TextStyle(color: Colors.brown.shade900, fontFamily: 'Roboto'),
   ),
 );
 
 class NewspaperTextTheme {
   static TextStyle title = GoogleFonts.unifrakturCook(
-      textStyle: TextStyle(
-          fontSize: 90,
-          fontWeight: FontWeight.bold)); //alternative Schriftarten: rye, unifrakturMaguntia, frederickaTheGreat
+    textStyle: TextStyle(fontSize: 90, fontWeight: FontWeight.bold),
+  ); //alternative Schriftarten: rye, unifrakturMaguntia, frederickaTheGreat
 
-  static TextStyle headline =
-      GoogleFonts.playfairDisplay(textStyle: TextStyle(fontSize: 55, fontWeight: FontWeight.bold));
+  static TextStyle headline = GoogleFonts.playfairDisplay(
+    textStyle: TextStyle(fontSize: 55, fontWeight: FontWeight.bold),
+  );
 
   static const TextStyle body = TextStyle(fontSize: 35);
 }
