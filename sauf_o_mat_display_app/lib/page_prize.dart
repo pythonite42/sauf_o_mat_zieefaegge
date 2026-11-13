@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -181,9 +182,10 @@ class _PagePrizeState extends State<PagePrize>
                 )
               : Center(
                   child: Row(
+                    spacing: MySize(context).w * 0.03,
                     children: [
                       Expanded(
-                        flex: 5,
+                        flex: 1,
                         child: Container(
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.black, width: 8),
@@ -192,71 +194,81 @@ class _PagePrizeState extends State<PagePrize>
                         ),
                       ),
 
-                      SizedBox(
-                        width: MySize(context).w * 0.03,
-                      ), // spacing between image and content
-
                       Expanded(
-                        flex: 4,
+                        flex: 2,
                         child: Container(
-                          height: MySize(context).h * 0.83,
+                          height: MySize(context).h * 0.95,
                           decoration: BoxDecoration(
                             image: DecorationImage(
                               image: AssetImage('assets/parchment.png'),
-                              fit: BoxFit.cover,
+                              fit: BoxFit.fill,
                             ),
                           ),
                           child: Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: MySize(context).w * 0.05,
-                              vertical: MySize(context).h * 0.0,
+                              vertical: MySize(context).h * 0.04,
                             ),
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.center,
+                              spacing: MySize(context).h * 0.02,
                               children: [
                                 Text(
                                   "Spielregeln",
                                   maxLines: 1,
                                   style: GoogleFonts.rye(
-                                    textStyle: TextStyle(fontSize: 64),
+                                    textStyle: TextStyle(fontSize: 80),
                                   ),
                                 ),
-                                SizedBox(height: MySize(context).h * 0.02),
-                                Text(
-                                  "Nenne bei der Getränkebestellung deinen Gruppennamen um Punkte zu sammeln. Die Gruppe mit den meisten Punkten gewinnt.",
-                                  style: TextStyle(fontSize: 30),
-                                  maxLines: 5,
-                                  textAlign: TextAlign.left,
-                                ),
-                                SizedBox(height: MySize(context).h * 0.02),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  spacing: MySize(context).w * 0.02,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      'Aktuell\nführend',
-                                      textAlign: TextAlign.end,
-                                      style: GoogleFonts.rye(
-                                        textStyle: TextStyle(fontSize: 35),
+                                    Expanded(
+                                      flex: 5,
+                                      child: Text(
+                                        "Nenne bei der Getränkebestellung deine Gruppe um Punkte zu sammeln.\n\nDie Gruppe mit den meisten Punkten gewinnt.",
+                                        style: TextStyle(
+                                          fontSize: 40,
+                                          fontWeight: FontWeight.bold,
+                                          height: 1.1,
+                                        ),
+                                        textAlign: TextAlign.left,
                                       ),
                                     ),
-                                    SizedBox(width: MySize(context).w * 0.02),
-                                    CircleAvatar(
-                                      backgroundColor: Colors.transparent,
-                                      radius: MySize(context).h * 0.1,
-                                      child: ClipOval(
-                                        child: Image.network(
-                                          groupLogo,
-                                          errorBuilder: (context, _, _) =>
-                                              Image.asset(
-                                                "assets/placeholder_group.png",
+                                    Expanded(
+                                      flex: 3,
+                                      child: Column(
+                                        spacing: MySize(context).h * 0.02,
+                                        children: [
+                                          Text(
+                                            'Aktuell\nführend',
+                                            textAlign: TextAlign.end,
+                                            style: GoogleFonts.rye(
+                                              textStyle: TextStyle(
+                                                fontSize: 35,
                                               ),
-                                        ),
+                                            ),
+                                          ),
+                                          CircleAvatar(
+                                            backgroundColor: Colors.transparent,
+                                            radius: MySize(context).h * 0.17,
+                                            child: ClipOval(
+                                              child: Image.network(
+                                                groupLogo,
+                                                errorBuilder: (context, _, _) =>
+                                                    Image.asset(
+                                                      "assets/placeholder_group.png",
+                                                    ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: MySize(context).h * 0.03),
                                 if (_remainingTime != null)
                                   (_remainingTime!.inSeconds >
                                           GlobalSettings.redThreshold)
@@ -291,31 +303,34 @@ class _PagePrizeState extends State<PagePrize>
 
   Widget _buildTimerBox(Color color) {
     return Container(
-      height: MySize(context).h * 0.1,
-      padding: const EdgeInsets.all(16),
+      width: MySize(context).w * 0.25,
+      padding: EdgeInsets.all(MySize(context).w * 0.005),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.timer,
-            color: Colors.black,
-            size: MySize(context).h * 0.06,
-          ),
-          const SizedBox(width: 10),
-          if (_remainingTime != null)
-            Text(
-              'Noch ${_formatDuration(_remainingTime!)}',
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: MySize(context).w * 0.01,
+          children: [
+            Icon(
+              Icons.timer,
+              color: Colors.black,
+              size: MySize(context).h * 0.08,
             ),
-        ],
+            if (_remainingTime != null)
+              Text(
+                'Noch ${_formatDuration(_remainingTime!)}',
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+          ],
+        ),
       ),
     );
   }
