@@ -1,10 +1,13 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:sauf_o_mat_display_app/backend_connection.dart';
 import 'package:sauf_o_mat_display_app/theme.dart';
 import 'package:sauf_o_mat_display_app/globals.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 import 'dart:math';
+
 import 'package:google_fonts/google_fonts.dart';
 
 class ChartData {
@@ -449,9 +452,8 @@ class _PageDiagramState extends State<PageDiagram> {
                                 SizedBox(
                                   height: availableHeight,
                                   child: ScrollConfiguration(
-                                    behavior: ScrollConfiguration.of(
-                                      context,
-                                    ).copyWith(scrollbars: false),
+                                    behavior: ScrollConfiguration.of(context)
+                                        .copyWith(scrollbars: false),
                                     child: ListView.builder(
                                       controller: _scrollController,
                                       itemCount: _chartData?.length,
@@ -465,6 +467,7 @@ class _PageDiagramState extends State<PageDiagram> {
                                               Container(
                                                 width: groupNameWidth,
                                                 padding: EdgeInsets.only(
+                                                  left: 30,
                                                   right: 20,
                                                 ),
                                                 child: Row(
@@ -518,7 +521,7 @@ class _PageDiagramState extends State<PageDiagram> {
                                                           ),
                                                     Text(
                                                       data?.group != null
-                                                          ? "  ${index + 1}.  "
+                                                          ? " ${index + 1}.  "
                                                           : '',
                                                       style: TextStyle(
                                                         fontSize:
