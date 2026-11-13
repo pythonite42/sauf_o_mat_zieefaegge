@@ -858,7 +858,7 @@ class _RacePopupWidgetState extends State<RacePopupWidget> {
                       ),
                     ),
                   ),
-                  SizedBox(height: MySize(context).h * 0.005),
+                  SizedBox(height: MySize(context).h * 0.02),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -867,9 +867,10 @@ class _RacePopupWidgetState extends State<RacePopupWidget> {
                       Text(" Punkten", style: bodyStyle),
                     ],
                   ),
-                  Divider(thickness: 2, height: MySize(context).h * 0.02),
-                  Text("Gejagt von ", style: bodyStyle),
-                  SizedBox(height: MySize(context).h * 0.005),
+                  SizedBox(height: MySize(context).h * 0.004),
+                  Divider(thickness: 2, height: MySize(context).h * 0.005),
+                  Text("werden gejagt von ", style: bodyStyle),
+                  SizedBox(height: MySize(context).h * 0.02),
                   SizedBox(
                     height: MySize(context).h * 0.1,
                     child: Center(
