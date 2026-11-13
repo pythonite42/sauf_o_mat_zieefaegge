@@ -767,6 +767,11 @@ class _RacePopupWidgetState extends State<RacePopupWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final bodyStyle = TextStyle(
+      fontSize: 35,
+      height: 1,
+      fontWeight: FontWeight.bold,
+    );
     return AlertDialog(
       backgroundColor: Colors.transparent, // make dialog itself transparent
       contentPadding: EdgeInsets.zero, // remove default padding
@@ -791,12 +796,16 @@ class _RacePopupWidgetState extends State<RacePopupWidget> {
                 children: [
                   Text(
                     'WANTED',
-                    style: GoogleFonts.rye(textStyle: TextStyle(fontSize: 80)),
+                    style: GoogleFonts.rye(
+                      textStyle: TextStyle(fontSize: 80, height: 1.1),
+                    ),
                   ),
                   Divider(thickness: 2),
                   Text(
                     'DEAD OR ALIVE',
-                    style: GoogleFonts.rye(textStyle: TextStyle(fontSize: 40)),
+                    style: GoogleFonts.rye(
+                      textStyle: TextStyle(fontSize: 40, height: 1.2),
+                    ),
                   ),
                   Divider(thickness: 2),
                   SizedBox(height: MySize(context).h * 0.01),
@@ -837,14 +846,13 @@ class _RacePopupWidgetState extends State<RacePopupWidget> {
                       ],
                     ),
                   ),
+                  SizedBox(height: MySize(context).h * 0.01),
                   SizedBox(
                     height: MySize(context).h * 0.1,
                     child: Center(
                       child: Text(
                         leader,
-                        style: GoogleFonts.rye(
-                          textStyle: TextStyle(fontSize: 35, height: 1),
-                        ),
+                        style: bodyStyle,
                         textAlign: TextAlign.center,
                         maxLines: 2,
                       ),
@@ -854,40 +862,20 @@ class _RacePopupWidgetState extends State<RacePopupWidget> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        "Mit ",
-                        style: GoogleFonts.rye(
-                          textStyle: TextStyle(fontSize: 35),
-                        ),
-                      ),
-                      Text(
-                        pointsOfLeader.toString(),
-                        style: GoogleFonts.rye(
-                          textStyle: TextStyle(fontSize: 35),
-                        ),
-                      ),
-                      Text(
-                        " Punkten",
-                        style: GoogleFonts.rye(
-                          textStyle: TextStyle(fontSize: 35),
-                        ),
-                      ),
+                      Text("Mit ", style: bodyStyle),
+                      Text(pointsOfLeader.toString(), style: bodyStyle),
+                      Text(" Punkten", style: bodyStyle),
                     ],
                   ),
-                  Divider(thickness: 2),
-                  Text(
-                    "Gejagt von ",
-                    style: GoogleFonts.rye(textStyle: TextStyle(fontSize: 35)),
-                  ),
+                  Divider(thickness: 2, height: MySize(context).h * 0.02),
+                  Text("Gejagt von ", style: bodyStyle),
                   SizedBox(height: MySize(context).h * 0.005),
                   SizedBox(
                     height: MySize(context).h * 0.1,
                     child: Center(
                       child: Text(
                         chaser,
-                        style: GoogleFonts.rye(
-                          textStyle: TextStyle(fontSize: 35, height: 1),
-                        ),
+                        style: bodyStyle,
                         textAlign: TextAlign.center,
                         maxLines: 2,
                       ),
