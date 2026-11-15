@@ -396,9 +396,8 @@ class _WinnerPopupWidgetState extends State<WinnerPopupWidget>
 
   @override
   Widget build(BuildContext context) {
-    final imageWidth = MySize(context).w * 0.2;
-    final imageHeight = MySize(context).h * 0.55;
     final double textSize = 35;
+    final double textSizeBigger = 40;
 
     return Center(
       child: ScaleTransition(
@@ -407,60 +406,65 @@ class _WinnerPopupWidgetState extends State<WinnerPopupWidget>
           turns: _rotationAnimation,
           child: Newspaper(
             content: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: MySize(context).w * 0.01,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Image.network(
+                    widget.imageUrl,
+                    errorBuilder: (context, _, _) =>
+                        Image.asset("assets/placeholder_group.png"),
+                  ),
+                ),
+                Flexible(
+                  flex: 3,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Verbrecher Gefasst!",
+                        style: TextStyle(
+                          fontSize: 55,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: MySize(context).h * 0.01),
+                      Text(
+                        widget.name,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: textSize,
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
                         children: [
-                          Image.network(
-                            widget.imageUrl,
-                            width: imageWidth,
-                            height: imageHeight,
-                            errorBuilder: (context, _, _) => Image.asset(
-                              "assets/placeholder_group.png",
-                              width: imageWidth,
-                              height: imageHeight,
+                          Text(
+                            "${widget.points}",
+                            style: TextStyle(
+                              fontSize: textSizeBigger,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(width: MySize(context).w * 0.01),
-                          SizedBox(
-                            width: MySize(context).w * 0.34,
-                            child: Column(
-                              children: [
-                                Text(
-                                  "Verbrecher Gefasst!",
-                                  style: NewspaperTextTheme.headline.copyWith(
-                                    fontSize: 50,
-                                  ),
-                                ),
-                                SizedBox(height: MySize(context).h * 0.03),
-                                Text(
-                                  widget.name,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: textSize),
-                                  maxLines: 2,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Text(
-                                      "${widget.points}",
-                                      style: TextStyle(
-                                        fontSize: textSize,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
                           Text(" Punkte", style: TextStyle(fontSize: textSize)),
-                                  ],
-                                ),
-                                SizedBox(height: MySize(context).h * 0.03),
-                      Text("Strafe:", style: TextStyle(fontSize: textSize)),
-                                Text(
-                                  widget.prize,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: textSize,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  maxLines: 2,
+                        ],
+                      ),
+                      SizedBox(height: MySize(context).h * 0.01),
+                      Text("Zur Strafe:", style: TextStyle(fontSize: textSize)),
+                      Text(
+                        widget.prize,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: textSizeBigger,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
