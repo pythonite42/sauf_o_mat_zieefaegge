@@ -39,16 +39,13 @@ class PageAdvertising extends StatelessWidget {
           final imageWidth = MySize(context).w * 0.32;
 
           return Newspaper(
-            content: ClipRRect(
-              // borderRadius: BorderRadius.circular(20),
-              child: Image.network(
-                imageUrl,
-                errorBuilder: (context, _, _) => Container(
-                  width: imageWidth,
-                  height: imageWidth,
-                  color: Colors.grey[300],
-                  child: Icon(Icons.image, size: MySize(context).w * 0.3 / 2),
-                ),
+            content: Image.network(
+              imageUrl,
+              errorBuilder: (context, _, _) => Container(
+                width: imageWidth,
+                height: imageWidth,
+                color: Colors.grey[300],
+                child: Icon(Icons.image, size: MySize(context).w * 0.3 / 2),
               ),
             ),
           );
