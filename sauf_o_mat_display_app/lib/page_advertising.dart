@@ -67,17 +67,16 @@ class PageAdvertising extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(
                           contentSize.width * 0.06,
-                          contentSize.height * 0.04,
+                          0,
                           contentSize.width * 0.06,
-                          contentSize.height * 0.04,
+                          contentSize.height * 0.17,
                         ),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               GlobalSettings.newspaperTitle,
                               style: NewspaperTextTheme.title.copyWith(
-                                fontSize: 100,
+                                fontSize: 106,
                                 height: 1.3,
                               ),
                               textAlign: TextAlign.center,
@@ -88,32 +87,22 @@ class PageAdvertising extends StatelessWidget {
                               ),
                               child: Divider(thickness: 4),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  width: MySize(context).w * 0.25,
-                                  height: MySize(context).h * 0.6,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Image.network(
-                                      imageUrl,
-                                      width: imageWidth,
-                                      errorBuilder: (context, _, _) =>
-                                          Container(
-                                            width: imageWidth,
-                                            height: imageWidth,
-                                            color: Colors.grey[300],
-                                            child: Icon(
-                                              Icons.image,
-                                              size: MySize(context).w * 0.3 / 2,
-                                            ),
-                                          ),
+                            Expanded(
+                              child: ClipRRect(
+                                // borderRadius: BorderRadius.circular(20),
+                                child: Image.network(
+                                  imageUrl,
+                                  errorBuilder: (context, _, _) => Container(
+                                    width: imageWidth,
+                                    height: imageWidth,
+                                    color: Colors.grey[300],
+                                    child: Icon(
+                                      Icons.image,
+                                      size: MySize(context).w * 0.3 / 2,
                                     ),
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
                           ],
                         ),
