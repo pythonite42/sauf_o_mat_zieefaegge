@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sauf_o_mat_display_app/backend_connection.dart';
+import 'package:sauf_o_mat_display_app/newspaper.dart';
 import 'package:sauf_o_mat_display_app/theme.dart';
 import 'package:sauf_o_mat_display_app/globals.dart';
 
@@ -404,40 +405,8 @@ class _WinnerPopupWidgetState extends State<WinnerPopupWidget>
         scale: _scaleAnimation,
         child: RotationTransition(
           turns: _rotationAnimation,
-          child: SizedBox(
-            height: MySize(context).h * 0.95,
-            width: MySize(context).w * 0.8,
-            child: Stack(
-              children: [
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: SizedBox(
-                    child: Image.asset(
-                      'assets/newspaper.png',
-                      width: MySize(context).w,
-                      fit: BoxFit.fitHeight,
-                      alignment: Alignment.topCenter,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: MySize(context).w * 0.11,
-                  top: MySize(context).h * 0.08,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        GlobalSettings.newspaperTitle,
-                        style: NewspaperTextTheme.title.copyWith(fontSize: 90),
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(
-                          bottom: MySize(context).h * 0.02,
-                        ),
-                        width: MySize(context).w * 0.55,
-                        child: Divider(thickness: 4),
-                      ),
-                      Row(
+          child: Newspaper(
+            content: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Image.network(
@@ -479,17 +448,11 @@ class _WinnerPopupWidgetState extends State<WinnerPopupWidget>
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    Text(
-                                      " Punkte",
-                                      style: TextStyle(fontSize: textSize),
-                                    ),
+                          Text(" Punkte", style: TextStyle(fontSize: textSize)),
                                   ],
                                 ),
                                 SizedBox(height: MySize(context).h * 0.03),
-                                Text(
-                                  "Strafe:",
-                                  style: TextStyle(fontSize: textSize),
-                                ),
+                      Text("Strafe:", style: TextStyle(fontSize: textSize)),
                                 Text(
                                   widget.prize,
                                   textAlign: TextAlign.center,
@@ -498,11 +461,6 @@ class _WinnerPopupWidgetState extends State<WinnerPopupWidget>
                                     fontWeight: FontWeight.bold,
                                   ),
                                   maxLines: 2,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
