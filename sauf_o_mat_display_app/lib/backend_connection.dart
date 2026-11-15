@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+
 import 'package:jose/jose.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -26,7 +27,9 @@ class SalesforceService {
 
   /// Returns a valid access token, caching it until it expires
   Future<String> getAccessToken() async {
-    if (_cachedToken != null && _tokenExpiry != null && DateTime.now().isBefore(_tokenExpiry!)) {
+    if (_cachedToken != null &&
+        _tokenExpiry != null &&
+        DateTime.now().isBefore(_tokenExpiry!)) {
       return _cachedToken!;
     }
 
@@ -43,7 +46,9 @@ class SalesforceService {
         'iss': consumerKey,
         'sub': username,
         'aud': loginUrl,
-        'exp': DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000 + 180, // 3 minutes
+        'exp':
+            DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000 +
+            180, // 3 minutes
       }
       ..setProtectedHeader('alg', 'RS256')
       ..addRecipient(key, algorithm: 'RS256');
@@ -119,13 +124,17 @@ class SalesforceService {
       );
 
       if (retryResponse.statusCode < 200 || retryResponse.statusCode >= 300) {
-        throw Exception('Salesforce PATCH Error: ${response.statusCode}, ${response.body}');
+        throw Exception(
+          'Salesforce PATCH Error: ${response.statusCode}, ${response.body}',
+        );
       }
       return;
     }
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception('Salesforce PATCH Error: ${response.statusCode}, ${response.body}');
+      throw Exception(
+        'Salesforce PATCH Error: ${response.statusCode}, ${response.body}',
+      );
     }
   }
 
@@ -147,7 +156,8 @@ class SalesforceService {
     if (isTestVersion) return TestBackendData().getPageDiagram();
     try {
       final data = await getRequest(
-          'SELECT Punktzahl_Bargetr_nke__c , Punktzahl_Bier_Wein_Schorle__c , Punktzahl_Kaffee_Lutz__c , Punktzahl_Shots__c , NAME, StatusDisplay__c FROM Team__c');
+        'SELECT Punktzahl_Bargetr_nke__c , Punktzahl_Bier_Wein_Schorle__c , Punktzahl_Kaffee_Lutz__c , Punktzahl_Shots__c , NAME, StatusDisplay__c FROM Team__c',
+      );
       var records = data["records"];
       List<Map> returnData = [];
       for (var record in records) {
@@ -196,10 +206,15 @@ class SalesforceService {
     }
   }
 
-  Future<bool> setPageDiagramVisualizedAt(String id, DateTime visualisedAt) async {
+  Future<bool> setPageDiagramVisualizedAt(
+    String id,
+    DateTime visualisedAt,
+  ) async {
     if (isTestVersion) return true;
     try {
-      patchRequest(id, "CatchUp__c", {"VisualizedAt__c": formatDateTime(visualisedAt)});
+      patchRequest(id, "CatchUp__c", {
+        "VisualizedAt__c": formatDateTime(visualisedAt),
+      });
       return true;
     } catch (e) {
       debugPrint('Error: $e');
@@ -211,7 +226,8 @@ class SalesforceService {
     if (isTestVersion) return TestBackendData().getPageTop3();
     try {
       final data = await getRequest(
-          'SELECT Anzahl_Bargetr_nke__c , Anzahl_Bier_Wein_Schorle__c , Anzahl_Kaffee_Lutz__c , AnzahlShots__c , Punktzahl__c, Logo__c, NAME FROM Team__c WHERE Rang__c < 4');
+        'SELECT Anzahl_Bargetr_nke__c , Anzahl_Bier_Wein_Schorle__c , Anzahl_Kaffee_Lutz__c , AnzahlShots__c , Punktzahl__c, Logo__c, NAME FROM Team__c WHERE Rang__c < 4',
+      );
       var records = data["records"];
       List<Map> returnData = [];
       for (var record in records) {
@@ -248,7 +264,9 @@ class SalesforceService {
   Future<List<Map>> getPageTop3BackgroundImages() async {
     if (isTestVersion) return TestBackendData().getPageTop3BackgroundImages();
     try {
-      final data = await getRequest('SELECT ImageURL__c, Name__c FROM BackgroundImage__c');
+      final data = await getRequest(
+        'SELECT ImageURL__c, Name__c FROM BackgroundImage__c',
+      );
       debugPrint(data["records"].toString());
       List<Map> returnData = data["records"].map<Map>((record) {
         return {
@@ -269,7 +287,9 @@ class SalesforceService {
   Future<Map> getPagePrize() async {
     if (isTestVersion) return TestBackendData().getPagePrize();
     try {
-      final data = await getRequest('SELECT Logo__c, Punktzahl__c, NAME FROM Team__c WHERE Rang__c = 1');
+      final data = await getRequest(
+        'SELECT Logo__c, Punktzahl__c, NAME FROM Team__c WHERE Rang__c = 1',
+      );
       return {
         "logo": data["records"][0]["Logo__c"] ?? "",
         "name": data["records"][0]["Name"] ?? "",
@@ -285,16 +305,22 @@ class SalesforceService {
     if (isTestVersion) return TestBackendData().getPageQuote();
     try {
       Map data = await getRequest(
-          'SELECT Id, Comment1__c, Comment2__c, Comment3__c, Commentator__c, CommentatorHandle__c, ImageURL__c FROM SocialMediaComment__c WHERE VisualizedAt__c = null ORDER BY LastModifiedDate DESC LIMIT 1');
+        'SELECT Id, Comment1__c, Comment2__c, Comment3__c, Commentator__c, CommentatorHandle__c, ImageURL__c FROM SocialMediaComment__c WHERE VisualizedAt__c = null ORDER BY LastModifiedDate DESC LIMIT 1',
+      );
       debugPrint(data["records"].toString());
       if (data["records"].isEmpty) {
         data = await getRequest(
-            'SELECT Id, Comment1__c, Comment2__c, Comment3__c, Commentator__c, CommentatorHandle__c, ImageURL__c FROM SocialMediaComment__c ORDER BY VisualizedAt__c ASC LIMIT 1');
+          'SELECT Id, Comment1__c, Comment2__c, Comment3__c, Commentator__c, CommentatorHandle__c, ImageURL__c FROM SocialMediaComment__c ORDER BY VisualizedAt__c ASC LIMIT 1',
+        );
       }
       debugPrint(data["records"].toString());
 
       var record = data["records"][0];
-      List<String> quotes = [record["Comment1__c"] ?? "", record["Comment2__c"] ?? "", record["Comment3__c"] ?? ""];
+      List<String> quotes = [
+        record["Comment1__c"] ?? "",
+        record["Comment2__c"] ?? "",
+        record["Comment3__c"] ?? "",
+      ];
       quotes.removeWhere((quote) => quote.trim().isEmpty);
       return {
         "recordId": record["Id"],
@@ -312,7 +338,9 @@ class SalesforceService {
   Future<bool> setPageQuoteQueryUsed(String id, DateTime visualisedAt) async {
     if (isTestVersion) return true;
     try {
-      patchRequest(id, "SocialMediaComment__c", {"VisualizedAt__c": formatDateTime(visualisedAt)});
+      patchRequest(id, "SocialMediaComment__c", {
+        "VisualizedAt__c": formatDateTime(visualisedAt),
+      });
       return true;
     } catch (e) {
       debugPrint('Error: $e');
@@ -324,16 +352,16 @@ class SalesforceService {
     if (isTestVersion) return TestBackendData().getPageAdvertising();
     try {
       Map data = await getRequest(
-          'SELECT Id, ImageURL__c, Subject__c, Description__c FROM Advertisement__c WHERE VisualizedAt__c = null ORDER BY LastModifiedDate DESC LIMIT 1');
+        'SELECT Id, ImageURL__c FROM Advertisement__c WHERE VisualizedAt__c = null ORDER BY LastModifiedDate DESC LIMIT 1',
+      );
       if (data["records"].isEmpty) {
         data = await getRequest(
-            'SELECT Id, ImageURL__c, Subject__c, Description__c FROM Advertisement__c ORDER BY VisualizedAt__c ASC LIMIT 1');
+          'SELECT Id, ImageURL__c FROM Advertisement__c ORDER BY VisualizedAt__c ASC LIMIT 1',
+        );
       }
       debugPrint(data["records"].toString());
       return {
         "id": data["records"][0]["Id"],
-        "headline": data["records"][0]["Subject__c"] ?? "",
-        "text": data["records"][0]["Description__c"] ?? "",
         "image": data["records"][0]["ImageURL__c"] ?? "",
       };
     } catch (e) {
@@ -342,10 +370,15 @@ class SalesforceService {
     }
   }
 
-  Future<bool> setPageAdvertisingVisualizedAt(String id, DateTime visualisedAt) async {
+  Future<bool> setPageAdvertisingVisualizedAt(
+    String id,
+    DateTime visualisedAt,
+  ) async {
     if (isTestVersion) return true;
     try {
-      patchRequest(id, "Advertisement__c", {"VisualizedAt__c": formatDateTime(visualisedAt)});
+      patchRequest(id, "Advertisement__c", {
+        "VisualizedAt__c": formatDateTime(visualisedAt),
+      });
       return true;
     } catch (e) {
       debugPrint('Error: $e');
