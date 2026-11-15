@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sauf_o_mat_display_app/theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:sauf_o_mat_display_app/globals.dart';
 
 class Newspaper extends StatelessWidget {
@@ -42,9 +42,12 @@ class Newspaper extends StatelessWidget {
                   children: [
                     Text(
                       GlobalSettings.newspaperTitle,
-                      style: NewspaperTextTheme.title.copyWith(
-                        fontSize: 106,
-                        height: 1.3,
+                      style: GoogleFonts.unifrakturCook(
+                        textStyle: TextStyle(
+                          fontSize: 106,
+                          height: 1.3,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       textAlign: TextAlign.center,
                     ),

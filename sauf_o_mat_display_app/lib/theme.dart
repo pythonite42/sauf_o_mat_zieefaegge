@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 Color defaultOnPrimary = Color(0xFFC7C5D0);
 Color defaultOnScroll = Color(0xFF8B4513);
@@ -64,15 +63,3 @@ final ThemeData appTheme = ThemeData(
     bodyLarge: TextStyle(color: Colors.brown.shade900, fontFamily: 'Roboto'),
   ),
 );
-
-class NewspaperTextTheme {
-  static TextStyle title = GoogleFonts.unifrakturCook(
-    textStyle: TextStyle(fontSize: 90, fontWeight: FontWeight.bold),
-  ); //alternative Schriftarten: rye, unifrakturMaguntia, frederickaTheGreat
-
-  static TextStyle headline = GoogleFonts.playfairDisplay(
-    textStyle: TextStyle(fontSize: 55, fontWeight: FontWeight.bold),
-  );
-
-  static const TextStyle body = TextStyle(fontSize: 35);
-}
