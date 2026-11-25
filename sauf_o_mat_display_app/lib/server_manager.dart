@@ -30,6 +30,10 @@ class ServerManager {
 
   final List<MessageHandler> _listeners = [];
 
+  /// True while a connection to the server is open. Listen to it to react to
+  /// (re)connects, e.g. to send the current state again.
+  final ValueNotifier<bool> connected = ValueNotifier(false);
+
   bool get isConnected => _channel != null;
 
   /// Connects to [url]. Never throws: if the server is unreachable, it keeps
@@ -70,6 +74,7 @@ class ServerManager {
         },
         cancelOnError: true,
       );
+      connected.value = true;
     } catch (e) {
       debugPrint("❌ WebSocket connect failed: $e");
       _scheduleReconnect();
@@ -100,7 +105,21 @@ class ServerManager {
     _subscription?.cancel();
     _subscription = null;
     _channel = null;
+    connected.value = false;
     _scheduleReconnect();
+  }
+
+  /// Drops the current connection (if any) and connects again immediately.
+  Future<void> reconnect() async {
+    _reconnectTimer?.cancel();
+    _reconnectAttempt = 0;
+    final old = _channel;
+    _channel = null;
+    _subscription?.cancel();
+    _subscription = null;
+    connected.value = false;
+    await old?.sink.close();
+    await _tryConnect();
   }
 
   void _scheduleReconnect() {
@@ -138,6 +157,7 @@ class ServerManager {
     _subscription?.cancel();
     _channel?.sink.close();
     _channel = null;
+    connected.value = false;
     _listeners.clear();
   }
 }

@@ -79,6 +79,9 @@ class _MyScaffoldState extends State<MyScaffold> {
   Timer? _prePrizeTimer;
   Timer? _unfreezeTimer;
   bool _socketFrozen = false;
+
+  /// ID of the phone whose camera is shown on the livestream page.
+  String? _livestreamOwner;
   int _nextPrizeIndex = 0;
 
   @override
@@ -89,26 +92,68 @@ class _MyScaffoldState extends State<MyScaffold> {
       debugPrint("socket event received: $data");
       if (data['event'] == 'freeze' && data["freeze"] == true) {
         //wenn 5 Minuten vor Preis, dann wird auf prize page gewechselt. wenn dann per app überschrieben wird ist der freeze automatisch drin bis eine minute nach preisZeit. Das wird in der App nicht angezeigt. Ist das okay so?
+        _socketFrozen = true;
         _cancelAutoTimer();
+        _broadcastState(reply: true);
       } else if (data['event'] == 'freeze' && data["freeze"] == false) {
         _socketFrozen = false;
         _maybeStartAutoTimer();
+        _broadcastState(reply: true);
       }
       if (data['event'] == 'pageIndex' && data['index'] is int) {
         int newIndex = data['index'];
+        bool navigated = false;
         if (newIndex != pageIndex || data['reset'] == true) {
           animateNavigation = !(data['reset'] == true);
           overridePageIndex = true;
           _navigateToPage(newIndex);
+          navigated = true;
         }
+        // The phone that (re)selected a livestream page owns the stream; all
+        // other phones turn their camera off when they see this in the state.
+        if (_isLivestreamPage(pageIndex) && pageIndex == newIndex) {
+          final String? newOwner = data['owner'] is String ? data['owner'] : null;
+          if (!navigated && newOwner != _livestreamOwner) {
+            // Another phone takes over: rebuild the page so it gets a fresh
+            // WebRTC connection that can accept the new phone's offer.
+            animateNavigation = false;
+            overridePageIndex = true;
+            _navigateToPage(newIndex);
+          }
+          _livestreamOwner = newOwner;
+        }
+        // Always answer, so a phone whose request was rejected gets corrected.
+        _broadcastState(reply: true);
+      }
+      if (data['event'] == 'requestState') {
+        _broadcastState();
       }
     };
 
     ServerManager().addListener(socketPageIndexListener);
+    ServerManager().connected.addListener(_onConnectionChanged);
 
     _startPageIndexTimer();
     _schedulePrizeGuard();
   }
+
+  void _onConnectionChanged() {
+    if (ServerManager().connected.value) _broadcastState();
+  }
+
+  /// Tells all phones which page is shown and whether the rotation is frozen.
+  /// [reply] marks a direct answer to a phone's command (see control app).
+  void _broadcastState({bool reply = false}) {
+    ServerManager().send({
+      "event": "state",
+      "pageIndex": pageIndex,
+      "frozen": _socketFrozen,
+      "livestreamOwner": _livestreamOwner,
+      "reply": reply,
+    });
+  }
+
+  bool _isLivestreamPage(int index) => index == 6 || index == 7;
 
   void _navigateToPage(int index) {
     if (index == 2 && DateTime.now().isAfter(GlobalSettings.prizeTimes.last)) {
@@ -121,6 +166,7 @@ class _MyScaffoldState extends State<MyScaffold> {
     setState(() {
       pageIndex = index;
     });
+    if (!_isLivestreamPage(index)) _livestreamOwner = null;
 
     if (_navigatorKey.currentContext != null) {
       _navigatorKey.currentState!.pushReplacementNamed('/page$index');
@@ -144,6 +190,7 @@ class _MyScaffoldState extends State<MyScaffold> {
           }
           animateNavigation = true;
           _navigateToPage(nextIndex);
+          _broadcastState();
         } else {
           overridePageIndex = false;
         }
@@ -185,6 +232,7 @@ class _MyScaffoldState extends State<MyScaffold> {
     animateNavigation = true;
     _navigateToPage(2);
     _cancelAutoTimer();
+    _broadcastState();
 
     _unfreezeTimer?.cancel();
     _unfreezeTimer = Timer(
@@ -198,7 +246,11 @@ class _MyScaffoldState extends State<MyScaffold> {
   }
 
   void _exitPrizeFreeze() {
+    // After the prize page the rotation always restarts: freeze commands sent
+    // by phones before or during the prize time are discarded.
+    _socketFrozen = false;
     _maybeStartAutoTimer();
+    _broadcastState();
     _nextPrizeIndex++;
     _schedulePrizeGuard();
   }
@@ -217,6 +269,7 @@ class _MyScaffoldState extends State<MyScaffold> {
   @override
   void dispose() {
     ServerManager().removeListener(socketPageIndexListener);
+    ServerManager().connected.removeListener(_onConnectionChanged);
     _pageIndexReloadTimer?.cancel();
     _prePrizeTimer?.cancel();
     _unfreezeTimer?.cancel();

@@ -1,14 +1,18 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:sauf_o_mat_control_app/colors.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:sauf_o_mat_control_app/server_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+
+  final String? ipAddress = dotenv.env['SERVER_IP'];
+  final String? port = dotenv.env['SERVER_PORT'];
+  // Does not block if the server is unreachable; keeps retrying in background.
+  ServerManager().connect("ws://$ipAddress:$port");
 
   runApp(const MyApp());
 }
@@ -59,6 +63,9 @@ class MySize {
   }
 }
 
+/// Random ID of this phone for this app run, used to tell phones apart.
+final String deviceId = "${DateTime.now().microsecondsSinceEpoch}-${Random().nextInt(1 << 32)}";
+
 class _MyHomePageState extends State<MyHomePage> {
   NavigationPage currentNavigationPage = pages.first;
   bool indexFrozen = false;
@@ -68,69 +75,96 @@ class _MyHomePageState extends State<MyHomePage> {
 
   RTCVideoRenderer localVideo = RTCVideoRenderer();
   MediaStream? localStream;
-  WebSocketChannel? channel;
   RTCPeerConnection? peerConnection;
 
-  void connectToServer() {
+  late final MessageHandler _socketListener = _handleSocketMessage;
+
+  /// After this phone sends a command, "state" broadcasts that the display sent
+  /// before handling the command (e.g. from its auto rotation) are outdated.
+  /// Until then, only direct replies are applied.
+  DateTime _ignoreUnsolicitedStateUntil = DateTime.fromMillisecondsSinceEpoch(0);
+
+  void send(Map<String, dynamic> data) {
+    ServerManager().send(data);
+  }
+
+  /// Sends a command to the display (pageIndex / freeze).
+  void sendCommand(Map<String, dynamic> data) {
+    _ignoreUnsolicitedStateUntil = DateTime.now().add(const Duration(seconds: 2));
+    // Tell the display who sent a page change, so it knows which phone owns
+    // the livestream. All other phones then turn their camera off.
+    if (data["event"] == "pageIndex") data = {...data, "owner": deviceId};
+    send(data);
+  }
+
+  void _onConnectionChanged() {
+    if (!mounted) return;
+    setState(() {});
+    // Ask the display which page it shows right now.
+    if (ServerManager().connected.value) send({"event": "requestState"});
+  }
+
+  Future<void> _handleSocketMessage(Map<String, dynamic> decoded) async {
     try {
-      final String? ipAddress = dotenv.env['SERVER_IP'];
-      final String? port = dotenv.env['SERVER_PORT'];
-
-      channel = WebSocketChannel.connect(Uri.parse("ws://$ipAddress:$port"));
-
-      // Listening to the socket event as a stream
-      channel?.stream.listen((message) async {
-        // Convert Uint8List to String
-        try {
-          final decodedMessage = utf8.decode(message as Uint8List);
-
-          // Now decode JSON
-          final Map<String, dynamic> decoded = jsonDecode(decodedMessage);
-
-          // If the client receive an offer
-          if (decoded["event"] == "offer") {
-            // Set the offer SDP to remote description
-            await peerConnection?.setRemoteDescription(
-              RTCSessionDescription(decoded["data"]["sdp"], decoded["data"]["type"]),
-            );
-
-            // Create an answer
-            RTCSessionDescription answer = await peerConnection!.createAnswer();
-
-            // Set the answer as an local description
-            await peerConnection!.setLocalDescription(answer);
-
-            // Send the answer to the other peer
-            channel?.sink.add(jsonEncode({"event": "answer", "data": answer.toMap()}));
-          }
-          // If client receive an Ice candidate from the peer
-          else if (decoded["event"] == "ice") {
-            // It add to the RTC peer connection
-            peerConnection?.addCandidate(
-              RTCIceCandidate(
-                decoded["data"]["candidate"],
-                decoded["data"]["sdpMid"],
-                decoded["data"]["sdpMLineIndex"],
-              ),
-            );
-          }
-          // If Client recive an reply of their offer as answer
-          else if (decoded["event"] == "answer") {
-            await peerConnection?.setRemoteDescription(
-              RTCSessionDescription(decoded["data"]["sdp"], decoded["data"]["type"]),
-            );
-          }
-          // If no condition fulfilled? printout the message
-          else {
-            debugPrint(decoded.toString());
-          }
-        } catch (e) {
-          debugPrint("ERROR $e");
+      // Note: phones never answer "offer" messages. A phone always starts the
+      // call itself, and answering another phone's offer would connect the two
+      // phones with each other instead of with the display.
+      if (decoded["event"] == "ice") {
+        await peerConnection?.addCandidate(
+          RTCIceCandidate(decoded["data"]["candidate"], decoded["data"]["sdpMid"], decoded["data"]["sdpMLineIndex"]),
+        );
+      } else if (decoded["event"] == "answer") {
+        // Only accept an answer while waiting for one to our own offer.
+        final state = await peerConnection?.getSignalingState();
+        if (state == RTCSignalingState.RTCSignalingStateHaveLocalOffer) {
+          await peerConnection?.setRemoteDescription(
+            RTCSessionDescription(decoded["data"]["sdp"], decoded["data"]["type"]),
+          );
         }
-      });
+      } else if (decoded["event"] == "state") {
+        _applyDisplayState(decoded);
+      } else {
+        debugPrint(decoded.toString());
+      }
     } catch (e) {
       debugPrint("ERROR $e");
     }
+  }
+
+  /// Syncs the dropdown and freeze switch with what the display really shows,
+  /// so all phones show the same state.
+  void _applyDisplayState(Map<String, dynamic> data) {
+    if (!mounted) return;
+    final index = data["pageIndex"];
+    final frozen = data["frozen"];
+    if (index is! int || frozen is! bool) return;
+    if (data["reply"] != true && DateTime.now().isBefore(_ignoreUnsolicitedStateUntil)) return;
+
+    final newPage = pages.firstWhere((p) => p.index == index, orElse: () => currentNavigationPage);
+    final pageChanged = newPage.index != currentNavigationPage.index;
+    final ownedByOtherPhone = newPage.isLivestream && data["livestreamOwner"] != deviceId;
+
+    // Stop the local camera if the display left the livestream this phone was
+    // on (other phone or prize page), or another phone took over the stream.
+    final loseCamera = currentNavigationPage.isLivestream && (pageChanged || ownedByOtherPhone);
+    if (loseCamera) stopLocalCamera();
+
+    setState(() {
+      indexFrozen = frozen;
+      if (pageChanged) currentNavigationPage = newPage;
+      if (loseCamera) {
+        _showCamera = false;
+        _isRecordingRunning = false;
+      }
+    });
+  }
+
+  /// Turns the camera off without telling the display, because the display
+  /// is either on another page or already showing another phone's stream.
+  Future<void> stopLocalCamera() async {
+    _cameraGeneration++; // cancels a camera start that is still running
+    _cameraStarting = false;
+    await cleanupLivestream();
   }
 
   // STUN server configuration
@@ -142,37 +176,65 @@ class _MyHomePageState extends State<MyHomePage> {
     ],
   };
 
-  // This must be done as soon as app loads
-  void initialization() async {
-    try {
-      await localVideo.dispose();
-      localStream = null;
+  /// Increased on every camera start/stop. A start that was overtaken by a
+  /// newer start/stop throws its result away instead of using it.
+  int _cameraGeneration = 0;
+  bool _cameraStarting = false;
+  String? _cameraError;
 
-      // Getting video feed from the user camera
-      localStream = await navigator.mediaDevices.getUserMedia({
+  /// (Re)starts the local camera. Always releases the previous camera first,
+  /// otherwise Android keeps it busy and the new start fails.
+  Future<void> startCamera() async {
+    final generation = ++_cameraGeneration;
+    setState(() {
+      _showCamera = false;
+      _isRecordingRunning = false;
+      _cameraStarting = true;
+      _cameraError = null;
+    });
+    await cleanupLivestream();
+
+    MediaStream? stream;
+    RTCVideoRenderer? renderer;
+    RTCPeerConnection? pc;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
         'video': {'facingMode': 'environment'},
         'audio': false,
       });
-      localVideo = RTCVideoRenderer();
-      await localVideo.initialize();
+      renderer = RTCVideoRenderer();
+      await renderer.initialize();
+      pc = await createPeerConnection(configuration);
 
-      // Set the local video to display
-      localVideo.srcObject = localStream;
-      // Initializing the peer connecion
-      peerConnection = await createPeerConnection(configuration);
-      setState(() {});
-      // Adding the local media to peer connection
-      // When connection establish, it send to the remote peer
-      localStream?.getTracks().forEach((track) {
-        peerConnection?.addTrack(track, localStream!);
-      });
+      if (generation != _cameraGeneration || !mounted) {
+        // Overtaken (e.g. another phone took over meanwhile): release again.
+        await _release(pc, stream, renderer);
+        return;
+      }
 
-      debugPrint("initialization");
+      localStream = stream;
+      localVideo = renderer;
+      peerConnection = pc;
+      renderer.srcObject = stream;
+      for (final track in stream.getTracks()) {
+        await pc.addTrack(track, stream);
+      }
       registerPeerConnectionListeners();
       setState(() {
         _showCamera = true;
+        _cameraStarting = false;
       });
-    } catch (_) {}
+      debugPrint("📷 Camera started");
+    } catch (e) {
+      debugPrint("❌ Error starting camera: $e");
+      await _release(pc, stream, renderer);
+      if (generation == _cameraGeneration && mounted) {
+        setState(() {
+          _cameraStarting = false;
+          _cameraError = "Kamera konnte nicht gestartet werden ($e). \"Kamera neu starten\" drücken.";
+        });
+      }
+    }
   }
 
   void makeCall() async {
@@ -183,7 +245,7 @@ class _MyHomePageState extends State<MyHomePage> {
     await peerConnection?.setLocalDescription(offer);
 
     // Sending the offer
-    channel?.sink.add(jsonEncode({"event": "offer", "data": offer.toMap()}));
+    send({"event": "offer", "data": offer.toMap()});
   }
 
   // Help to debug our code
@@ -194,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage> {
     };
 
     peerConnection?.onIceCandidate = (RTCIceCandidate candidate) {
-      channel?.sink.add(jsonEncode({"event": "ice", "data": candidate.toMap()}));
+      send({"event": "ice", "data": candidate.toMap()});
     };
 
     peerConnection?.onConnectionState = (RTCPeerConnectionState state) {
@@ -214,7 +276,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (localStream != null) {
         for (var track in localStream!.getVideoTracks()) {
           track.enabled = false; // Stop sending frames
-          channel?.sink.add(jsonEncode({"event": "paused"}));
+          send({"event": "paused"});
         }
         debugPrint("📷 Camera paused");
       }
@@ -228,7 +290,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (localStream != null) {
         for (var track in localStream!.getVideoTracks()) {
           track.enabled = true; // Resume sending frames
-          channel?.sink.add(jsonEncode({"event": "resumed"}));
+          send({"event": "resumed"});
         }
         debugPrint("📷 Camera resumed");
       }
@@ -237,62 +299,69 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  /// Closes the peer connection and releases the camera and renderer.
   Future<void> cleanupLivestream() async {
+    final pc = peerConnection;
+    final stream = localStream;
+    final renderer = localVideo;
+    // Detach first, so nothing uses them while they are being released.
+    peerConnection = null;
+    localStream = null;
+    localVideo = RTCVideoRenderer();
+    await _release(pc, stream, renderer);
+    debugPrint("✅ Livestream cleaned up");
+  }
+
+  Future<void> _release(RTCPeerConnection? pc, MediaStream? stream, RTCVideoRenderer? renderer) async {
     try {
-      // Close peer connection
-      await peerConnection?.close();
-      peerConnection = null;
-
-      // Stop and release local stream
-      if (localStream != null) {
-        for (var track in localStream!.getTracks()) {
-          track.stop();
-        }
-        await localStream!.dispose();
-        localStream = null;
-      }
-
-      // Dispose and re-create the renderer so it's fresh next time
-      await localVideo.dispose();
-      channel = null;
-      debugPrint("✅ Livestream cleaned up");
+      await pc?.close();
     } catch (e) {
-      debugPrint("❌ Error cleaning up livestream: $e");
+      debugPrint("❌ Error closing peer connection: $e");
+    }
+    try {
+      for (final track in stream?.getTracks() ?? <MediaStreamTrack>[]) {
+        await track.stop(); // frees the camera
+      }
+      await stream?.dispose();
+    } catch (e) {
+      debugPrint("❌ Error stopping camera: $e");
+    }
+    try {
+      await renderer?.dispose();
+    } catch (e) {
+      debugPrint("❌ Error disposing renderer: $e");
     }
   }
 
   Future<void> reloadApp() async {
+    // Only restart the camera if this phone was the one streaming; otherwise
+    // two phones would have their camera on.
+    final hadCamera = _showCamera;
     await pauseCamera();
-    await cleanupLivestream();
-    await peerConnection?.close();
-    peerConnection = null;
+    await stopLocalCamera();
 
-    try {
-      await localVideo.dispose();
-    } catch (_) {}
-
-    channel?.sink.close();
-    channel = null;
-
-    connectToServer();
+    await ServerManager().reconnect();
+    if (!mounted) return;
     setState(() {
       _showCamera = false;
       _isRecordingRunning = false;
-      if (currentNavigationPage.isLivestream) {
-        localVideo.initialize();
-        initialization();
-      }
     });
+    if (hadCamera && currentNavigationPage.isLivestream) startCamera();
   }
 
   @override
   void initState() {
-    connectToServer();
     super.initState();
+    ServerManager().addListener(_socketListener);
+    ServerManager().connected.addListener(_onConnectionChanged);
+    // The connection may already be open before this widget existed.
+    if (ServerManager().connected.value) send({"event": "requestState"});
   }
 
   @override
   void dispose() {
+    ServerManager().removeListener(_socketListener);
+    ServerManager().connected.removeListener(_onConnectionChanged);
     peerConnection?.close();
     localVideo.dispose();
     super.dispose();
@@ -304,6 +373,9 @@ class _MyHomePageState extends State<MyHomePage> {
       padding: EdgeInsets.symmetric(horizontal: MySize(context).h * paddingFactor),
       decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(8)),
       child: DropdownButtonFormField<String>(
+        // initialValue is only read once; the key rebuilds the field when the
+        // page is changed by the display or another phone.
+        key: ValueKey(currentNavigationPage.index),
         initialValue: currentNavigationPage.name,
         icon: Icon(Icons.expand_more, color: Theme.of(context).colorScheme.onPrimary),
         dropdownColor: Theme.of(context).colorScheme.surface,
@@ -331,36 +403,55 @@ class _MyHomePageState extends State<MyHomePage> {
         }).toList(),
         onChanged: (String? newValue) async {
           NavigationPage newPage = pages.firstWhere((page) => page.name == newValue);
+          // Same livestream page reselected while this phone's camera already
+          // runs: keep it running instead of restarting it.
+          final keepCamera = newPage.index == currentNavigationPage.index && _showCamera;
 
           debugPrint("send event pageIndex with index ${newPage.index}");
-          channel?.sink.add(jsonEncode({"event": "pageIndex", "index": newPage.index}));
+          sendCommand({"event": "pageIndex", "index": newPage.index});
 
+          final leavesLivestream = currentNavigationPage.isLivestream && !newPage.isLivestream;
           setState(() {
             if (indexFrozen || newPage.isLivestream) {
-              channel?.sink.add(jsonEncode({"event": "freeze", "freeze": true}));
+              sendCommand({"event": "freeze", "freeze": true});
               indexFrozen = true;
             }
-            if (currentNavigationPage.isLivestream && newPage.isLivestream == false) {
-              channel?.sink.add(jsonEncode({"event": "freeze", "freeze": false}));
+            if (leavesLivestream) {
+              sendCommand({"event": "freeze", "freeze": false});
               indexFrozen = false;
             }
             currentNavigationPage = newPage;
-            _isRecordingRunning = false;
-
-            if (newPage.isLivestream) {
-              localVideo.initialize();
-              initialization();
-            } else {
+            _cameraError = null;
+            if (!keepCamera) {
+              _isRecordingRunning = false;
               _showCamera = false;
             }
           });
+
+          if (newPage.isLivestream && !keepCamera) {
+            startCamera();
+          } else if (leavesLivestream) {
+            stopLocalCamera(); // frees the camera, it was only hidden before
+          }
         },
       ),
     );
   }
 
+  String get cameraPlaceholderText {
+    if (!currentNavigationPage.isLivestream) return "Kamera wird aktiviert wenn Livestream ausgewählt ist";
+    if (_cameraError != null) return _cameraError!;
+    if (_cameraStarting) return "Kamera wird gestartet …";
+    return "Livestream wurde von einem anderen Handy gestartet. \"Kamera neu starten\" um ihn zu übernehmen.";
+  }
+
   Widget reloadAppButton() {
-    return ElevatedButton(onPressed: reloadApp, child: const Text("Neu verbinden"));
+    final isConnected = ServerManager().connected.value;
+    return ElevatedButton.icon(
+      onPressed: reloadApp,
+      icon: Icon(isConnected ? Icons.wifi : Icons.wifi_off, color: isConnected ? Colors.green : Colors.red),
+      label: const Text("Neu verbinden"),
+    );
   }
 
   Widget freezeSwitch() {
@@ -375,7 +466,7 @@ class _MyHomePageState extends State<MyHomePage> {
             setState(() {
               indexFrozen = newFrozenValue;
               debugPrint("freeze page: $newFrozenValue");
-              channel?.sink.add(jsonEncode({"event": "freeze", "freeze": newFrozenValue}));
+              sendCommand({"event": "freeze", "freeze": newFrozenValue});
             });
           },
         ),
@@ -387,25 +478,16 @@ class _MyHomePageState extends State<MyHomePage> {
     return currentNavigationPage.isLivestream
         ? ElevatedButton(
             onPressed: () async {
-              channel?.sink.add(
-                jsonEncode({"event": "pageIndex", "index": currentNavigationPage.index, "reset": true}),
-              );
+              sendCommand({"event": "pageIndex", "index": currentNavigationPage.index, "reset": true});
               await pauseCamera();
-              localVideo.initialize();
-              initialization();
-
-              setState(() {
-                _isRecordingRunning = false;
-              });
+              await startCamera();
             },
             child: const Text("Kamera neu starten"),
           )
         : ElevatedButton(
             onPressed: () {
               debugPrint("send event reset");
-              channel?.sink.add(
-                jsonEncode({"event": "pageIndex", "index": currentNavigationPage.index, "reset": true}),
-              );
+              sendCommand({"event": "pageIndex", "index": currentNavigationPage.index, "reset": true});
             },
             child: const Text("Seiten-Daten neu laden"),
           );
@@ -537,7 +619,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: Padding(
                               padding: EdgeInsets.all(MySize(context).h * 0.02),
                               child: Text(
-                                "Kamera wird aktiviert wenn Livestream ausgewählt ist",
+                                cameraPlaceholderText,
                                 textAlign: TextAlign.center,
                               ),
                             ),
@@ -593,7 +675,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: Padding(
                               padding: EdgeInsets.all(MySize(context).h * 0.02),
                               child: Text(
-                                "Kamera wird aktiviert wenn Livestream ausgewählt ist",
+                                cameraPlaceholderText,
                                 textAlign: TextAlign.center,
                               ),
                             ),
