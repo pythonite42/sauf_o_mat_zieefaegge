@@ -239,13 +239,13 @@ class _PageLivestreamState extends State<PageLivestream> {
                           Text(
                             "Howdy Cowboy!",
                             style: GoogleFonts.rye(
-                              textStyle: TextStyle(fontSize: 85),
+                              textStyle: TextStyle(fontSize: 83),
                             ),
                           ),
                           Text(
                             "Du wurdest zum Abschuss freigegeben",
                             style: GoogleFonts.rye(
-                              textStyle: TextStyle(fontSize: 62),
+                              textStyle: TextStyle(fontSize: 55),
                             ),
                           ),
                         ],
@@ -344,8 +344,7 @@ class BeerGlassStack extends StatelessWidget {
             top: size * 0.11,
             right: paddingRight,
             child: CustomPaint(
-              painter:
-                  BeerGlassBorderPainter(), // adjust painter to only paint border
+              painter: BeerGlassBorderPainter(), // adjust painter to only paint border
               child: SizedBox(width: beerGlassWidth, height: beerGlassHeight),
             ),
           ),
