@@ -81,6 +81,10 @@ class _MyScaffoldState extends State<MyScaffold> {
   final List<Timer> _disabledPagesTimers = [];
   bool _socketFrozen = false;
 
+  /// True while the prize page is shown automatically around a prize time.
+  /// Phones cannot navigate or freeze during that time.
+  bool _prizeLocked = false;
+
   /// ID of the phone whose camera is shown on the livestream page.
   String? _livestreamOwner;
   int _nextPrizeIndex = 0;
@@ -91,8 +95,20 @@ class _MyScaffoldState extends State<MyScaffold> {
 
     socketPageIndexListener = (data) {
       debugPrint("socket event received: $data");
+      if (_prizeLocked &&
+          (data['event'] == 'freeze' || data['event'] == 'pageIndex')) {
+        // While the prize page is shown automatically, phones cannot navigate
+        // or freeze. Only reloading the data of the current page is allowed.
+        if (data['event'] == 'pageIndex' &&
+            data['reset'] == true &&
+            data['index'] == pageIndex) {
+          animateNavigation = false;
+          _navigateToPage(pageIndex, force: true);
+        }
+        _broadcastState(reply: true);
+        return;
+      }
       if (data['event'] == 'freeze' && data["freeze"] == true) {
-        //wenn 5 Minuten vor Preis, dann wird auf prize page gewechselt. wenn dann per app überschrieben wird ist der freeze automatisch drin bis eine minute nach preisZeit. Das wird in der App nicht angezeigt. Ist das okay so?
         _socketFrozen = true;
         _cancelAutoTimer();
         _broadcastState(reply: true);
@@ -152,6 +168,7 @@ class _MyScaffoldState extends State<MyScaffold> {
       "frozen": _socketFrozen,
       "livestreamOwner": _livestreamOwner,
       "disabledPages": _disabledPages(),
+      "prizeLocked": _prizeLocked,
       "reply": reply,
     });
   }
@@ -187,8 +204,10 @@ class _MyScaffoldState extends State<MyScaffold> {
 
   bool _isLivestreamPage(int index) => index == 6 || index == 7;
 
-  void _navigateToPage(int index) {
-    if (_disabledPages().contains(index)) return;
+  /// [force] skips the disabled-page check, e.g. to show the prize page for
+  /// the last prize after its prize time.
+  void _navigateToPage(int index, {bool force = false}) {
+    if (!force && _disabledPages().contains(index)) return;
 
     setState(() {
       pageIndex = index;
@@ -244,37 +263,32 @@ class _MyScaffoldState extends State<MyScaffold> {
 
     if (now.isBefore(preStart)) {
       final wait = preStart.difference(now);
-      _prePrizeTimer = Timer(wait, _enterPrizeFreeze);
+      _prePrizeTimer = Timer(wait, () => _enterPrizeFreeze(preEnd));
     } else if (!now.isAfter(preEnd)) {
-      _enterPrizeFreeze();
-      final remaining = preEnd.difference(now);
-      _unfreezeTimer = Timer(remaining, _exitPrizeFreeze);
+      _enterPrizeFreeze(preEnd);
     } else {
       _nextPrizeIndex++;
       _schedulePrizeGuard();
     }
   }
 
-  void _enterPrizeFreeze() {
+  /// Shows the prize page until [until] and locks manual navigation.
+  void _enterPrizeFreeze(DateTime until) {
+    _prizeLocked = true;
+    overridePageIndex = false;
     animateNavigation = true;
-    _navigateToPage(2);
+    _navigateToPage(2, force: true);
     _cancelAutoTimer();
     _broadcastState();
 
     _unfreezeTimer?.cancel();
-    _unfreezeTimer = Timer(
-      Duration(
-        seconds:
-            customDurations.changeToPrizePageBeforePrizeTime +
-            customDurations.stayOnPrizePageAfterPrizeTime,
-      ),
-      _exitPrizeFreeze,
-    );
+    _unfreezeTimer = Timer(until.difference(DateTime.now()), _exitPrizeFreeze);
   }
 
   void _exitPrizeFreeze() {
     // After the prize page the rotation always restarts: freeze commands sent
-    // by phones before or during the prize time are discarded.
+    // by phones before the prize time are discarded.
+    _prizeLocked = false;
     _socketFrozen = false;
     _maybeStartAutoTimer();
     _broadcastState();

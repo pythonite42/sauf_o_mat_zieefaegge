@@ -84,6 +84,10 @@ class _MyHomePageState extends State<MyHomePage> {
   /// prize, schedule page after the last performance). Sent by the display.
   Set<int> disabledPages = {};
 
+  /// True while the display shows the prize page automatically around a prize
+  /// time. Navigation and freeze are locked until the rotation runs again.
+  bool prizeLocked = false;
+
   bool _showCamera = false;
   bool _isRecordingRunning = false;
 
@@ -163,12 +167,14 @@ class _MyHomePageState extends State<MyHomePage> {
     final index = data["pageIndex"];
     final frozen = data["frozen"];
     if (index is! int || frozen is! bool) return;
-    // Always applied, even for outdated broadcasts: pages never become
-    // available again.
+    // Always applied, even for broadcasts that are otherwise ignored: these are
+    // decided by the display alone, and the latest message is always correct.
     final disabled = data["disabledPages"];
-    if (disabled is List) {
-      setState(() => disabledPages = disabled.whereType<int>().toSet());
-    }
+    final locked = data["prizeLocked"];
+    setState(() {
+      if (disabled is List) disabledPages = disabled.whereType<int>().toSet();
+      if (locked is bool) prizeLocked = locked;
+    });
     if (data["reply"] != true &&
         DateTime.now().isBefore(_ignoreUnsolicitedStateUntil))
       return;
@@ -430,8 +436,21 @@ class _MyHomePageState extends State<MyHomePage> {
         key: ValueKey(currentNavigationPage.index),
         initialValue: currentNavigationPage.name,
         icon: Icon(
-          Icons.expand_more,
+          prizeLocked ? Icons.lock : Icons.expand_more,
           color: Theme.of(context).colorScheme.onPrimary,
+        ),
+        iconDisabledColor: Theme.of(
+          context,
+        ).colorScheme.onPrimary.withValues(alpha: 0.6),
+        // Shown instead of the selected item while the dropdown is disabled.
+        disabledHint: Text(
+          currentNavigationPage.name,
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onPrimary.withValues(alpha: 0.6),
+            fontWeight: FontWeight.bold,
+          ),
         ),
         dropdownColor: Theme.of(context).colorScheme.surface,
         decoration: const InputDecoration(
@@ -472,7 +491,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           );
         }).toList(),
-        onChanged: (String? newValue) async {
+        // null disables the dropdown during the prize page.
+        onChanged: prizeLocked ? null : (String? newValue) async {
           NavigationPage newPage = pages.firstWhere(
             (page) => page.name == newValue,
           );
@@ -514,6 +534,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   String get cameraPlaceholderText {
+    if (prizeLocked)
+      return "Preisverleihung läuft: Navigation ist gesperrt, bis die Seiten wieder automatisch wechseln.";
     if (!currentNavigationPage.isLivestream)
       return "Kamera wird aktiviert wenn Livestream ausgewählt ist";
     if (_cameraError != null) return _cameraError!;
@@ -541,7 +563,7 @@ class _MyHomePageState extends State<MyHomePage> {
           value: indexFrozen,
           activeThumbColor: Colors.green,
 
-          onChanged: (bool newFrozenValue) {
+          onChanged: prizeLocked ? null : (bool newFrozenValue) {
             setState(() {
               indexFrozen = newFrozenValue;
               debugPrint("freeze page: $newFrozenValue");
