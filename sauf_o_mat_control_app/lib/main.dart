@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:sauf_o_mat_control_app/colors.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -22,7 +23,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Sauf-O-Mat Controls', theme: appTheme, home: const MyHomePage());
+    return MaterialApp(
+      title: 'Sauf-O-Mat Controls',
+      theme: appTheme,
+      home: const MyHomePage(),
+    );
   }
 }
 
@@ -31,7 +36,11 @@ class NavigationPage {
   final int index;
   final bool isLivestream;
 
-  NavigationPage({required this.name, required this.index, this.isLivestream = false});
+  NavigationPage({
+    required this.name,
+    required this.index,
+    this.isLivestream = false,
+  });
 }
 
 class MyHomePage extends StatefulWidget {
@@ -64,7 +73,8 @@ class MySize {
 }
 
 /// Random ID of this phone for this app run, used to tell phones apart.
-final String deviceId = "${DateTime.now().microsecondsSinceEpoch}-${Random().nextInt(1 << 32)}";
+final String deviceId =
+    "${DateTime.now().microsecondsSinceEpoch}-${Random().nextInt(1 << 32)}";
 
 class _MyHomePageState extends State<MyHomePage> {
   NavigationPage currentNavigationPage = pages.first;
@@ -82,7 +92,9 @@ class _MyHomePageState extends State<MyHomePage> {
   /// After this phone sends a command, "state" broadcasts that the display sent
   /// before handling the command (e.g. from its auto rotation) are outdated.
   /// Until then, only direct replies are applied.
-  DateTime _ignoreUnsolicitedStateUntil = DateTime.fromMillisecondsSinceEpoch(0);
+  DateTime _ignoreUnsolicitedStateUntil = DateTime.fromMillisecondsSinceEpoch(
+    0,
+  );
 
   void send(Map<String, dynamic> data) {
     ServerManager().send(data);
@@ -90,7 +102,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   /// Sends a command to the display (pageIndex / freeze).
   void sendCommand(Map<String, dynamic> data) {
-    _ignoreUnsolicitedStateUntil = DateTime.now().add(const Duration(seconds: 2));
+    _ignoreUnsolicitedStateUntil = DateTime.now().add(
+      const Duration(seconds: 2),
+    );
     // Tell the display who sent a page change, so it knows which phone owns
     // the livestream. All other phones then turn their camera off.
     if (data["event"] == "pageIndex") data = {...data, "owner": deviceId};
@@ -111,14 +125,21 @@ class _MyHomePageState extends State<MyHomePage> {
       // phones with each other instead of with the display.
       if (decoded["event"] == "ice") {
         await peerConnection?.addCandidate(
-          RTCIceCandidate(decoded["data"]["candidate"], decoded["data"]["sdpMid"], decoded["data"]["sdpMLineIndex"]),
+          RTCIceCandidate(
+            decoded["data"]["candidate"],
+            decoded["data"]["sdpMid"],
+            decoded["data"]["sdpMLineIndex"],
+          ),
         );
       } else if (decoded["event"] == "answer") {
         // Only accept an answer while waiting for one to our own offer.
         final state = await peerConnection?.getSignalingState();
         if (state == RTCSignalingState.RTCSignalingStateHaveLocalOffer) {
           await peerConnection?.setRemoteDescription(
-            RTCSessionDescription(decoded["data"]["sdp"], decoded["data"]["type"]),
+            RTCSessionDescription(
+              decoded["data"]["sdp"],
+              decoded["data"]["type"],
+            ),
           );
         }
       } else if (decoded["event"] == "state") {
@@ -138,15 +159,23 @@ class _MyHomePageState extends State<MyHomePage> {
     final index = data["pageIndex"];
     final frozen = data["frozen"];
     if (index is! int || frozen is! bool) return;
-    if (data["reply"] != true && DateTime.now().isBefore(_ignoreUnsolicitedStateUntil)) return;
+    if (data["reply"] != true &&
+        DateTime.now().isBefore(_ignoreUnsolicitedStateUntil))
+      return;
 
-    final newPage = pages.firstWhere((p) => p.index == index, orElse: () => currentNavigationPage);
+    final newPage = pages.firstWhere(
+      (p) => p.index == index,
+      orElse: () => currentNavigationPage,
+    );
     final pageChanged = newPage.index != currentNavigationPage.index;
-    final ownedByOtherPhone = newPage.isLivestream && data["livestreamOwner"] != deviceId;
+    final ownedByOtherPhone =
+        newPage.isLivestream && data["livestreamOwner"] != deviceId;
 
     // Stop the local camera if the display left the livestream this phone was
     // on (other phone or prize page), or another phone took over the stream.
-    final loseCamera = currentNavigationPage.isLivestream && (pageChanged || ownedByOtherPhone);
+    final loseCamera =
+        currentNavigationPage.isLivestream &&
+        (pageChanged || ownedByOtherPhone);
     if (loseCamera) stopLocalCamera();
 
     setState(() {
@@ -171,7 +200,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Map<String, dynamic> configuration = {
     'iceServers': [
       {
-        'urls': ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'],
+        'urls': [
+          'stun:stun1.l.google.com:19302',
+          'stun:stun2.l.google.com:19302',
+        ],
       },
     ],
   };
@@ -231,7 +263,8 @@ class _MyHomePageState extends State<MyHomePage> {
       if (generation == _cameraGeneration && mounted) {
         setState(() {
           _cameraStarting = false;
-          _cameraError = "Kamera konnte nicht gestartet werden ($e). \"Kamera neu starten\" drücken.";
+          _cameraError =
+              "Kamera konnte nicht gestartet werden ($e). \"Kamera neu starten\" drücken.";
         });
       }
     }
@@ -312,7 +345,11 @@ class _MyHomePageState extends State<MyHomePage> {
     debugPrint("✅ Livestream cleaned up");
   }
 
-  Future<void> _release(RTCPeerConnection? pc, MediaStream? stream, RTCVideoRenderer? renderer) async {
+  Future<void> _release(
+    RTCPeerConnection? pc,
+    MediaStream? stream,
+    RTCVideoRenderer? renderer,
+  ) async {
     try {
       await pc?.close();
     } catch (e) {
@@ -370,18 +407,30 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget myDropDownButtonFormField(double widthFactor, double paddingFactor) {
     return Container(
       width: MySize(context).w * widthFactor,
-      padding: EdgeInsets.symmetric(horizontal: MySize(context).h * paddingFactor),
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(8)),
+      padding: EdgeInsets.symmetric(
+        horizontal: MySize(context).h * paddingFactor,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: DropdownButtonFormField<String>(
         // initialValue is only read once; the key rebuilds the field when the
         // page is changed by the display or another phone.
         key: ValueKey(currentNavigationPage.index),
         initialValue: currentNavigationPage.name,
-        icon: Icon(Icons.expand_more, color: Theme.of(context).colorScheme.onPrimary),
+        icon: Icon(
+          Icons.expand_more,
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
         dropdownColor: Theme.of(context).colorScheme.surface,
         decoration: const InputDecoration(
-          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
-          focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.transparent),
+          ),
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.transparent),
+          ),
         ),
         style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         selectedItemBuilder: (BuildContext context) {
@@ -390,7 +439,10 @@ class _MyHomePageState extends State<MyHomePage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 page.name,
-                style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             );
           }).toList();
@@ -398,19 +450,26 @@ class _MyHomePageState extends State<MyHomePage> {
         items: pages.map((NavigationPage page) {
           return DropdownMenuItem<String>(
             value: page.name,
-            child: Text(page.name, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            child: Text(
+              page.name,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            ),
           );
         }).toList(),
         onChanged: (String? newValue) async {
-          NavigationPage newPage = pages.firstWhere((page) => page.name == newValue);
+          NavigationPage newPage = pages.firstWhere(
+            (page) => page.name == newValue,
+          );
           // Same livestream page reselected while this phone's camera already
           // runs: keep it running instead of restarting it.
-          final keepCamera = newPage.index == currentNavigationPage.index && _showCamera;
+          final keepCamera =
+              newPage.index == currentNavigationPage.index && _showCamera;
 
           debugPrint("send event pageIndex with index ${newPage.index}");
           sendCommand({"event": "pageIndex", "index": newPage.index});
 
-          final leavesLivestream = currentNavigationPage.isLivestream && !newPage.isLivestream;
+          final leavesLivestream =
+              currentNavigationPage.isLivestream && !newPage.isLivestream;
           setState(() {
             if (indexFrozen || newPage.isLivestream) {
               sendCommand({"event": "freeze", "freeze": true});
@@ -439,7 +498,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   String get cameraPlaceholderText {
-    if (!currentNavigationPage.isLivestream) return "Kamera wird aktiviert wenn Livestream ausgewählt ist";
+    if (!currentNavigationPage.isLivestream)
+      return "Kamera wird aktiviert wenn Livestream ausgewählt ist";
     if (_cameraError != null) return _cameraError!;
     if (_cameraStarting) return "Kamera wird gestartet …";
     return "Livestream wurde von einem anderen Handy gestartet. \"Kamera neu starten\" um ihn zu übernehmen.";
@@ -449,7 +509,10 @@ class _MyHomePageState extends State<MyHomePage> {
     final isConnected = ServerManager().connected.value;
     return ElevatedButton.icon(
       onPressed: reloadApp,
-      icon: Icon(isConnected ? Icons.wifi : Icons.wifi_off, color: isConnected ? Colors.green : Colors.red),
+      icon: Icon(
+        isConnected ? Icons.wifi : Icons.wifi_off,
+        color: isConnected ? Colors.green : Colors.red,
+      ),
       label: const Text("Neu verbinden"),
     );
   }
@@ -478,7 +541,11 @@ class _MyHomePageState extends State<MyHomePage> {
     return currentNavigationPage.isLivestream
         ? ElevatedButton(
             onPressed: () async {
-              sendCommand({"event": "pageIndex", "index": currentNavigationPage.index, "reset": true});
+              sendCommand({
+                "event": "pageIndex",
+                "index": currentNavigationPage.index,
+                "reset": true,
+              });
               await pauseCamera();
               await startCamera();
             },
@@ -487,7 +554,11 @@ class _MyHomePageState extends State<MyHomePage> {
         : ElevatedButton(
             onPressed: () {
               debugPrint("send event reset");
-              sendCommand({"event": "pageIndex", "index": currentNavigationPage.index, "reset": true});
+              sendCommand({
+                "event": "pageIndex",
+                "index": currentNavigationPage.index,
+                "reset": true,
+              });
             },
             child: const Text("Seiten-Daten neu laden"),
           );
@@ -511,8 +582,14 @@ class _MyHomePageState extends State<MyHomePage> {
             Stack(
               alignment: Alignment.center,
               children: [
-                SizedBox(width: width, height: height, child: RTCVideoView(localVideo, mirror: false)),
-                currentNavigationPage.index != 7 ? exCamLimiter : kissCamLimiter,
+                SizedBox(
+                  width: width,
+                  height: height,
+                  child: RTCVideoView(localVideo, mirror: false),
+                ),
+                currentNavigationPage.index != 7
+                    ? exCamLimiter
+                    : kissCamLimiter,
               ],
             ),
             Container(
@@ -560,14 +637,21 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: MediaQuery.of(context).orientation == Orientation.portrait
           ? Padding(
-              padding: EdgeInsets.symmetric(vertical: MySize(context).h * 0.06, horizontal: MySize(context).w * 0.03),
+              padding: EdgeInsets.symmetric(
+                vertical: MySize(context).h * 0.06,
+                horizontal: MySize(context).w * 0.03,
+              ),
               child: Column(
                 children: <Widget>[
                   Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [reloadAppButton(), myDropDownButtonFormField(0.5, 0.02)],
+                        spacing: MySize(context).w * 0.02,
+                        children: [
+                          reloadAppButton(),
+                          myDropDownButtonFormField(0.5, 0.02),
+                        ],
                       ),
                       SizedBox(height: MySize(context).h * 0.02),
                       Row(
@@ -581,8 +665,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: _showCamera
                         ? LayoutBuilder(
                             builder: (context, constraints) {
-                              var controlBarHeight = constraints.maxHeight * 0.13;
-                              var height = constraints.maxHeight - controlBarHeight;
+                              var controlBarHeight =
+                                  constraints.maxHeight * 0.13;
+                              var height =
+                                  constraints.maxHeight - controlBarHeight;
                               var width = height * 9 / 16;
                               return cameraWidget(
                                 controlBarHeight: controlBarHeight,
@@ -592,10 +678,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                   height: height,
                                   child: Column(
                                     mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Container(width: width, height: height * 0.2, color: Colors.black),
-                                      Container(width: width, height: height * 0.16, color: Colors.black),
+                                      Container(
+                                        width: width,
+                                        height: height * 0.2,
+                                        color: Colors.black,
+                                      ),
+                                      Container(
+                                        width: width,
+                                        height: height * 0.16,
+                                        color: Colors.black,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -605,10 +700,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                   height: height,
                                   child: Column(
                                     mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Container(width: width, height: height * 0.25, color: Colors.black),
-                                      Container(width: width, height: height * 0.22, color: Colors.black),
+                                      Container(
+                                        width: width,
+                                        height: height * 0.25,
+                                        color: Colors.black,
+                                      ),
+                                      Container(
+                                        width: width,
+                                        height: height * 0.22,
+                                        color: Colors.black,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -630,15 +734,21 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             )
           : Padding(
-              padding: EdgeInsets.symmetric(vertical: MySize(context).h * 0.06, horizontal: MySize(context).w * 0.05),
+              padding: EdgeInsets.symmetric(
+                vertical: MySize(context).h * 0.06,
+                horizontal: MySize(context).w * 0.05,
+              ),
               child: Row(
                 children: <Widget>[
                   Expanded(
                     child: _showCamera
                         ? LayoutBuilder(
                             builder: (context, constraints) {
-                              var controlBarHeight = constraints.maxHeight * 0.2;
-                              var height = (constraints.maxWidth * 9 / 16) - controlBarHeight;
+                              var controlBarHeight =
+                                  constraints.maxHeight * 0.2;
+                              var height =
+                                  (constraints.maxWidth * 9 / 16) -
+                                  controlBarHeight;
                               var width = height * 16 / 9;
                               return cameraWidget(
                                 controlBarHeight: controlBarHeight,
@@ -648,10 +758,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                   width: width,
                                   child: Row(
                                     mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Container(width: width * 0.30, height: height, color: Colors.black),
-                                      Container(width: width * 0.30, height: height, color: Colors.black),
+                                      Container(
+                                        width: width * 0.30,
+                                        height: height,
+                                        color: Colors.black,
+                                      ),
+                                      Container(
+                                        width: width * 0.30,
+                                        height: height,
+                                        color: Colors.black,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -661,10 +780,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                   width: width,
                                   child: Row(
                                     mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Container(width: width * 0.14, height: height, color: Colors.black),
-                                      Container(width: width * 0.14, height: height, color: Colors.black),
+                                      Container(
+                                        width: width * 0.14,
+                                        height: height,
+                                        color: Colors.black,
+                                      ),
+                                      Container(
+                                        width: width * 0.14,
+                                        height: height,
+                                        color: Colors.black,
+                                      ),
                                     ],
                                   ),
                                 ),
