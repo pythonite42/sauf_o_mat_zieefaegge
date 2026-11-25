@@ -78,6 +78,7 @@ class _MyScaffoldState extends State<MyScaffold> {
   Timer? _pageIndexReloadTimer;
   Timer? _prePrizeTimer;
   Timer? _unfreezeTimer;
+  final List<Timer> _disabledPagesTimers = [];
   bool _socketFrozen = false;
 
   /// ID of the phone whose camera is shown on the livestream page.
@@ -135,6 +136,7 @@ class _MyScaffoldState extends State<MyScaffold> {
 
     _startPageIndexTimer();
     _schedulePrizeGuard();
+    _scheduleDisabledPagesBroadcast();
   }
 
   void _onConnectionChanged() {
@@ -149,19 +151,44 @@ class _MyScaffoldState extends State<MyScaffold> {
       "pageIndex": pageIndex,
       "frozen": _socketFrozen,
       "livestreamOwner": _livestreamOwner,
+      "disabledPages": _disabledPages(),
       "reply": reply,
     });
+  }
+
+  /// Pages that can no longer be shown: prize page after the last prize time,
+  /// schedule page after the last performance.
+  List<int> _disabledPages() {
+    final now = DateTime.now();
+    return [
+      if (now.isAfter(GlobalSettings.prizeTimes.last)) 2,
+      if (now.isAfter(GlobalSettings.lastPerformance)) 3,
+    ];
+  }
+
+  /// Broadcasts the state when a page becomes unavailable, so the phones
+  /// disable it in their dropdown even while the rotation is frozen.
+  void _scheduleDisabledPagesBroadcast() {
+    final now = DateTime.now();
+    for (final deadline in [
+      GlobalSettings.prizeTimes.last,
+      GlobalSettings.lastPerformance,
+    ]) {
+      if (deadline.isAfter(now)) {
+        _disabledPagesTimers.add(
+          Timer(
+            deadline.difference(now) + const Duration(seconds: 1),
+            _broadcastState,
+          ),
+        );
+      }
+    }
   }
 
   bool _isLivestreamPage(int index) => index == 6 || index == 7;
 
   void _navigateToPage(int index) {
-    if (index == 2 && DateTime.now().isAfter(GlobalSettings.prizeTimes.last)) {
-      return;
-    }
-    if (index == 3 && DateTime.now().isAfter(GlobalSettings.lastPerformance)) {
-      return;
-    }
+    if (_disabledPages().contains(index)) return;
 
     setState(() {
       pageIndex = index;
@@ -273,6 +300,9 @@ class _MyScaffoldState extends State<MyScaffold> {
     _pageIndexReloadTimer?.cancel();
     _prePrizeTimer?.cancel();
     _unfreezeTimer?.cancel();
+    for (final timer in _disabledPagesTimers) {
+      timer.cancel();
+    }
     super.dispose();
   }
 

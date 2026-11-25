@@ -80,6 +80,10 @@ class _MyHomePageState extends State<MyHomePage> {
   NavigationPage currentNavigationPage = pages.first;
   bool indexFrozen = false;
 
+  /// Page indices the display can no longer show (prize page after the last
+  /// prize, schedule page after the last performance). Sent by the display.
+  Set<int> disabledPages = {};
+
   bool _showCamera = false;
   bool _isRecordingRunning = false;
 
@@ -159,6 +163,12 @@ class _MyHomePageState extends State<MyHomePage> {
     final index = data["pageIndex"];
     final frozen = data["frozen"];
     if (index is! int || frozen is! bool) return;
+    // Always applied, even for outdated broadcasts: pages never become
+    // available again.
+    final disabled = data["disabledPages"];
+    if (disabled is List) {
+      setState(() => disabledPages = disabled.whereType<int>().toSet());
+    }
     if (data["reply"] != true &&
         DateTime.now().isBefore(_ignoreUnsolicitedStateUntil))
       return;
@@ -448,11 +458,17 @@ class _MyHomePageState extends State<MyHomePage> {
           }).toList();
         },
         items: pages.map((NavigationPage page) {
+          final enabled = !disabledPages.contains(page.index);
+          final onSurface = Theme.of(context).colorScheme.onSurface;
           return DropdownMenuItem<String>(
             value: page.name,
+            enabled: enabled,
             child: Text(
               page.name,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              style: TextStyle(
+                color: enabled ? onSurface : onSurface.withValues(alpha: 0.38),
+                decoration: enabled ? null : TextDecoration.lineThrough,
+              ),
             ),
           );
         }).toList(),
