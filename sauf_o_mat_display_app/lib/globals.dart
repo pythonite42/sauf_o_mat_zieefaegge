@@ -45,7 +45,7 @@ class CustomDurationsProduction {
   final int delayPrizePopUp = 2;
 
   //page quote
-  final int switchQuote = 40;
+  final int switchQuote = 30;
   final int carouselTransistion = 800;
 
   // ##### salesforce ######################
@@ -96,7 +96,7 @@ class CustomDurationsTest {
   final int catchUpValidUntil =
       60; //how long is a catchUp eligible for visualisation
   final int diagramStatusAufgestiegenAbgestiegen =
-      20; //seconds a group is marked as "aufgestiegen" or "abgestiegen"
+      60; //seconds a group is marked as "aufgestiegen" or "abgestiegen"
 }
 
 class GlobalSettings {
