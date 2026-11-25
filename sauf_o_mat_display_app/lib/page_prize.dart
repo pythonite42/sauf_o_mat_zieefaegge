@@ -32,7 +32,7 @@ class _PagePrizeState extends State<PagePrize>
   String groupName = "";
   int groupPoints = 0;
 
-  String imagePrize = "assets/prize_0.png";
+  String imagePrize = "assets/prize_0.jpg";
 
   BuildContext? _popupContext;
   bool _popupShown = false;
@@ -47,7 +47,7 @@ class _PagePrizeState extends State<PagePrize>
         setState(() {
           nextPrizeDateTime = prizeTime;
           nextPrize = GlobalSettings.prizeNames[i];
-          imagePrize = "assets/prize_$i.png";
+          imagePrize = "assets/prize_$i.jpg";
         });
         break;
       }
@@ -188,6 +188,7 @@ class _PagePrizeState extends State<PagePrize>
                       Expanded(
                         flex: 1,
                         child: Container(
+                          height: MySize(context).h * 0.95,
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.black, width: 8),
                           ),

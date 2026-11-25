@@ -54,9 +54,9 @@ flutter:
     - assets/bottle_spin.gif
     - assets/kiss.gif
     - assets/rose_wreath.png
-    - assets/prize_0.png
-    - assets/prize_1.png
-    - assets/prize_2.png
+    - assets/prize_0.jpg
+    - assets/prize_1.jpg
+    - assets/prize_2.jpg
     - assets/bullet_hole_angled.png
     - assets/bullet_hole_angled_grey.png
 
