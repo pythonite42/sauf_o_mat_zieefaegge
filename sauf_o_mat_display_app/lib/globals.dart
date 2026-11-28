@@ -112,9 +112,9 @@ class GlobalSettings {
   static const int flashThreshold = 60;
   static const int redThreshold = 300;
   static List<String> prizeNames = [
-    "Fünf Halstücher",
-    "Ein Shotbrett",
-    "Eine Säule Bachwasser",
+    "1 Meter Shots &\n5 Halstücher",
+    "1 Säule Bachwasser &\n5 Halstücher",
+    "1 Säule Bachwasser &\n1 Meter Shots",
   ];
   static List<DateTime> prizeTimes = [
     DateTime(2026, 11, 28, 22, 45),
